@@ -1,7 +1,7 @@
 #!/bin/bash
 # Compile my master thesis
 
-DIR="./output/"
+DIR="./"
 FILENAME="main"
 
 mkdir ${DIR}
