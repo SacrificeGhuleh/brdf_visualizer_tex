@@ -7,8 +7,6 @@
 
 \usepackage[backend=biber, style=iso-numeric, alldates=iso]{biblatex} % bibliografie
 
-\usepackage[autostyle=true,czech=quotes]{csquotes} % korektni sazba uvozovek, podpora pro balik biblatex
-
 \usepackage{dcolumn} % sloupce tabulky s ciselnymi hodnotami
 \usepackage{subfig} % makra pro "podobrazky" a "podtabulky"
 \usepackage{xevlna}
@@ -16,10 +14,13 @@
 \usepackage{pgfplots}
 \usepackage{fontspec}
 \usepackage{minted}
+\usepackage[autostyle=true,czech=quotes]{csquotes} % korektni sazba uvozovek, podpora pro balik biblatex
 \usepackage{xcolor}
 \usepackage{hyperref}
 
 \setmonofont{[JetBrainsMono-Regular.ttf]}[Contextuals=Alternate,Ligatures=TeX]
+
+\pdfminorversion=6
 
 
 \pgfplotsset{compat=newest}
@@ -37,7 +38,7 @@
 
 \EnglishThesisTitle{Interactive Visualization of BRDF Functions}
 
-\SubmissionDate{1. dubna 2021}
+\SubmissionDate{30.dubna 2021}
 
 % Pokud nechceme nikomu dekovat makro zapoznamkujeme.
 \Thanks{Rád bych na tomto místě poděkoval všem, kteří mi s prací pomohli, protože bez nich by tato práce nevznikla.}
@@ -57,11 +58,11 @@
 
 \CzechAbstract{Tohle je český abstrakt, zbytek odstavce je tvořen výplňovým textem. Naší si rozmachu potřebami s posílat v poskytnout ty má plot. Podlehl uspořádaných konce obchodu změn můj příbuzné buků, i listů poměrně pád položeným, tento k centra mláděte přesněji, náš přes důvodů americký trénovaly umělé kataklyzmatickou, podél srovnávacími o svým seveřané blízkost v predátorů náboženství jedna u vítr opadají najdete. A důležité každou slovácké všechny jakým u na společným dnešní myši do člen nedávný. Zjistí hází vymíráním výborná.}
 
-\CzechKeywords{typografie; \LaTeX; diplomová práce}
+\CzechKeywords{TODO Klíčová slova}
 
 \EnglishAbstract{This is English abstract. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Fusce tellus odio, dapibus id fermentum quis, suscipit id erat. Aenean placerat. Vivamus ac leo pretium faucibus. Duis risus. Fusce consectetuer risus a nunc. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Aliquam erat volutpat. Donec vitae arcu. Nullam lectus justo, vulputate eget mollis sed, tempor sed magna. Curabitur ligula sapien, pulvinar a vestibulum quis, facilisis vel sapien. Vestibulum fermentum tortor id mi. Etiam bibendum elit eget erat. Pellentesque pretium lectus id turpis. Nulla quis diam.}
 
-\EnglishKeywords{typography; \LaTeX; master thesis}
+\EnglishKeywords{TODO keywords}
 
 \AddAcronym{BRDF}{bidirectional reflectance distribution function}
 
@@ -76,11 +77,8 @@
 
 % Nechame vysazet titulni strany.
 \MakeTitlePages
-
 % A nasleduje text zaverecne prace.
 \section{Úvod}
-\label{sec:Introduction}
-
 \section{Tutorials}
 
 \subsection{Images}
@@ -167,7 +165,7 @@ Obecně lze říci, že pro bibliografické odkazy a citace dokumentů použív�
 Pro odkazy v textu používáme číselné označení citací dokumentů ohraničené hranatými závorkami. Takže například můžeme citovat časopisecké \emph{články} \cite{herrmann, bertram, moore, yoon, sigfridsson, baez/article}, \emph{knihy} \cite{wilde, nietzsche:ksa1, averroes/bland, hammond, cotton, knuth:ct:a, gerhardt, gonzalez, companion}, \emph{periodika} \cite{jcg}, \emph{bakalářské, diplomové či diserteční práce} \cite{geer}, \emph{patenty} \cite{kowalik, almendro, sorace, laufenberg}, \emph{online zdroje} \cite{ctan, wassenberg, itzhaki, markey, baez/online} či \emph{manuály} \cite{cms}.
 
 \subsubsection{Seznam citací}
-Seznam citací je umístěn na konci závěrečné práce, před přílohami, a musí obsahovat všechny citace na které je v textu práce odkazováno.  
+Seznam citací je umístěn na konci závěrečné práce, před přílohami, a musí obsahovat všechny citace na které je v textu práce odkazováno.
 
 \subsection{Překlad}
 Kompilaci této ukázkové práce je možné provést pomocí několika volání pdf\LaTeX{}u a programu Biber v následujícím pořadí:
