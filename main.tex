@@ -11,17 +11,25 @@
 \usepackage{subfig} % makra pro "podobrazky" a "podtabulky"
 \usepackage{xevlna}
 \usepackage{tikz}
+\usepackage{mathtools}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{esvect}
 \usepackage{pgfplots}
 \usepackage{fontspec}
 \usepackage{minted}
 \usepackage[autostyle=true,czech=quotes]{csquotes} % korektni sazba uvozovek, podpora pro balik biblatex
+\usepackage{pifont}
 \usepackage{xcolor}
 \usepackage{hyperref}
 
-\setmonofont{[JetBrainsMono-Regular.ttf]}[Contextuals=Alternate,Ligatures=TeX]
-
+%\setmonofont{[JetBrainsMono-Regular.ttf]}[Contextuals=Alternate,Ligatures=TeX]
+%\setmonofont{[Computer Modern]}
 \pdfminorversion=6
 
+%Značení normovaného vektoru
+%\newcommand{\uvec}[1]{\boldsymbol{\hat{#1}}}
+\newcommand{\uvec}[1]{\hat{#1}}
 
 \pgfplotsset{compat=newest}
 
@@ -30,6 +38,11 @@
     style=vs,
     frame=lines
 }
+
+
+\newcommand{\true}{\ding{51}}
+\newcommand{\false}{\ding{55}}
+\newcommand{\unknown}{\dots}
 
 % Zadame pozadovane vstupy pro generovani titulnich stran.
 \ThesisAuthor{Richard Zvonek}
@@ -66,7 +79,7 @@
 
 \AddAcronym{BRDF}{bidirectional reflectance distribution function}
 
-\addbibresource{biblatex-examples.bib}
+\addbibresource{main.bib}
 
 % Novy druh tabulkoveho sloupce, ve kterem jsou cisla zarovnana podle desetinne carky
 \newcolumntype{d}[1]{D{,}{,}{#1}}
@@ -81,8 +94,158 @@
 
 \section{Úvod}
 
-\section{Generování vizualizace BRDF}
-\subsection{Vizualizace BRDF}
+\section{BRDF}
+BRDF je matematická funkce, která definuje pro daný materiál odrazivost povrchu. Určuje pro každý bod tělesa distribuci odrazu světla. Na \hyperref[fig:brdf2D]{obrázku \ref{fig:brdf2D}} je znázorněn základní princip BRDF funkce. Vektor $\vv{n}$ je normála povrchu, $\vv{\omega}_{in}$ značí směr ke světelnému zdroji, $\vv{\omega}_{out}$ značí směr k pozorovateli (ke kameře). BRDF je definována pro dvojici vektorů  $\vv{\omega}_{in}$ a $\vv{\omega}_{out}$ v daném bodě $p$ pomocí \hyperref[eq:brdf]{vzorce \ref{eq:brdf}}. 
+% Pbrt strana 350
+
+\begin{equation} \label{eq:brdf}
+    f_r\left(p,\omega_{out},\omega_{in}\right) = \frac{dL_o\left(p, \omega_{out}\right)}{dE\left(p, \omega_{in}\right)} = \frac{dL_o\left(p, \omega_{out}\right)}{L_i\left(p, \omega_{in}\right)\cos \theta_{in}d\omega_{in}}
+\end{equation}
+
+Je žádoucí, aby BRDF funkce splňovaly některá základní pravidla. Je důležitá  fyzikální přesnost BRDF funkce, pro kterou musí být musí být splněny následující podmínky \cite{PHARR2017313}: 
+\begin{enumerate}
+    % 10.3 Reciprocity 
+    \item Princip vzájemnosti (Helmholtzův princip reciprocity, \cite{hapke_2012}) - Pro všechny dvojice $\vv{\omega}_{in}$ a $\vv{\omega}_{out}$ platí: $f_r\left(p,\omega_{out},\omega_{in}\right) = f_r\left(p,\omega_{in},\omega_{out}\right)$
+    \item Princip zachování energie - Celková energie odraženého světla nemůže být vyšší, než energie vstupního světla
+    \item BRDF musí mít vždy nezáporný výsledek
+\end{enumerate}
+\begin{figure}[ht!]
+  \centering
+  \begin{tikzpicture}[scale=0.6]
+    % base circle
+    \draw (-4,0) arc (180:360:4 and 1);
+    \draw [dashed] (-4,0) arc (180:0:4 and 1);
+    % hemisphere
+    \draw (-4,0) arc (180:0:4 and 4);
+
+    \draw [thick, ->] (0,0) -- ++(-5,0) node [at end, above] () {$\vv{t}$};
+    \draw [thick, ->] (0,0) -- ++(135:5cm) node [at end, above] () {$\vv{\omega}_{out}$};
+    % y
+    \draw [thick, thick, ->] (0,0) -- ++(0,5) node [at end, above] () {$\vv{n}$};
+    % z
+    \draw [thick, ->] (0,0,0) -- ++(0,-2.5,-2.5) node [at end, above] () {$\vv{b}$};
+    % lines spanning angle alpha
+    \draw [thick, ->] (0,0) -- ++(45:5cm) node [at end, above] () {$\vv{\omega}_{in}$};
+
+    \draw [thin, dashed] (0,0) -- ++(55:3cm);
+    \draw [thin, dashed] (0,0) -- ++(35:3cm);
+
+    \draw[thin, dashed, rotate=45] (3,0) ellipse (0.25cm and 0.5cm);
+
+    \draw [thin, <->] (0,0) ++(90:1.5cm) arc (90:45:1.5cm) node [midway, above] () {$\theta_{in}$};
+
+    \draw [thin, dashed] (1.5,1.5) -- ++(0,-2);
+    \draw [thin, dashed] (0,0) -- ++(1.5,-0.5);
+
+    \draw [thin, dashed] (-2,2) -- ++(0,-2.53);
+    \draw [thin, dashed] (0,0) -- ++(-2,-0.5);
+
+    \draw [thin, <->] (0,0) ++(180:2.1cm) arc (185:205:1.5cm) node [midway, left] () {$\phi_{out}$};
+
+    \draw [thin, <->] (0,0) ++(180:1.7cm) arc (185:326:1.5cm and 0.75cm) node [midway, left] () {$\phi_{in}$};
+
+    \draw [thin, <->] (0,0) ++(90:2cm) arc (90:135:2cm) node [midway, above] () {$\theta_{out}$};
+    
+    
+    \draw (-0.05,-0.3) node () {$p$};
+  \end{tikzpicture}
+  \caption{Základní vizualizace BRDF funkce}
+  \label{fig:brdf2D}
+\end{figure}
+
+\subsection{Přehled BRDF funkcí}
+Následující odstavce se zabývají detailním popisem a vlastnostmi jednotlivých BRDF funkcí. Budou zde vyjmenovány pouze ty BRDF funkce, které byly implementovány v praktické části této diplomové práce. \\ 
+Pro rychlý přehled vlastností jednotlivých BRDF funkcí je možné využít \hyperref[tab:brdfProperties]{tabulku \ref{tab:brdfProperties}} (převzato z \cite{BRDFOverview}, zkráceno, doplněno). 
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{r|lllllll}
+\hline
+BRDF model & \rotatebox{60}{Physical} & \rotatebox{60}{Plausible} & \rotatebox{60}{Fresnel Eq}. & \rotatebox{60}{Anisotropic} & \rotatebox{60}{Sampling} & \rotatebox{60}{Rel. cost (cycles)} & \rotatebox{60}{Material type} \\
+\hline
+Ideální odraz    &\true  &\true  &\false  &\false  &\true  & $x$  &  \\
+Lambert          &\true  &\true  &\false  &\false  &\true  & $x$  &  \\
+Phong            &\false  &\false  &\false  &\false  &\true  & \unknown &  \\
+Blinn-Phong      &\false  &\false  &\false  &\false  &\true  &  $9.18x$ &  \\
+Phys. correct Phong &\false  &\true  &\false  &\false  &\true  & \unknown &   \\
+Torrance-Sparrow &\true  &\false  &\true  &\true  &\false  & \unknown & \\
+Cook-Torrance &\true  &\true  &\true  &\false  &\false  & $16.9x$ & \\
+Oren-Nayar &\true  &\true  &\false  &\false  &\true  & $10.98x$ & \\
+\hline
+\end{tabular}
+\caption{Stručný přehled implementovaných BRDF funkcí}
+\label{tab:brdfProperties}
+\end{table}
+
+\subsubsection{Lambert}
+Lambertovo BRDF (Lambertovský povrch) se řadí mezi analytické modely BRDF. Popisuje ideálně matné povrchy, které odráží příchozí světlo do všech směrů rovnoměrně se stejnou pravděpodobností, nehledě na příchozí směr paprsku. Jedná se o nejjednodušší BRDF funkci, je definována \hyperref[eq:lambertBRDF]{vztahem \ref{eq:lambertBRDF}} \cite{Koppal2014}.
+%COmputer vision reference guide katushi, page 675 - Lambertian Reflectance
+\begin{equation} \label{eq:lambertBRDF}
+    f_r\left(p,\omega_{out},\omega_{in}\right) = \frac{\rho_d}{\pi} = konst.
+\end{equation}
+$\rho_d$ ve \hyperref[eq:lambertBRDF]{vztahu \ref{eq:lambertBRDF}} vyjadřuje poměr mezi pohlceným a odraženým světlem. Tato veličina je také odborně nazývána pojmem albedo. Dělení konstantou $\pi$ zajišťuje platnost zákona zachování energie. Díky nezávislosti na směru vstupního paprsku je také splněna reciprocita. 
+
+\subsubsection{Phong} \label{sec:Phong}
+Phongovo BRDF vychází z Phongova osvětlovacího modelu, řadí se mezi analytické modely BRDF a používá se pro lesklé povrchy. Původní model je definován \hyperref[eq:phongBRDF]{vzorcem \ref{eq:phongBRDF}} \cite{Phong1975}
+\begin{equation} \label{eq:phongBRDF}
+    f_r\left(p,\omega_{out},\omega_{in}\right) = k_s(\uvec{r}\cdot\uvec{v})^n
+\end{equation}
+
+Upravený, také často využívaný Blinn-Phong model je definován \hyperref[eq:blinnBRDF]{vzorcem \ref{eq:blinnBRDF}} \cite{BlinnPhong1977}. Výhodou upraveného Blinn-Phongova modelu oproti klasickému Phongovu modelu je hladší přechod odlesku světla. 
+
+\begin{equation} \label{eq:blinnBRDF}
+    f_r\left(p,\omega_{out},\omega_{in}\right) = k_s(\uvec{n}\cdot\uvec{h})^n
+\end{equation}
+
+Jak Phong, tak Blinn-Phong modely nejsou fyzikálně přesné - nesplňují zákon zachování energie, ani zákon reciprocity \cite{BRDFOverview}. Phongovo BRDF je možné dále upravit, aby byly splněny pravidla pro fyzikální korektnost. Fyzikálně korektní Phongovo BRDF je definováno \hyperref[eq:phongPhysicalBRDF]{vzorcem \ref{eq:phongPhysicalBRDF}}. Pro fyzikální korektnost této varianty Phongova BRDF je potřeba dodržet $k_d + k_s \leq 1$ \cite{LaFortunePhongBRDF}.
+
+\begin{equation} \label{eq:phongPhysicalBRDF}
+    f_r\left(p,\omega_{out},\omega_{in}\right) = \frac{k_d}{\pi} +
+    \frac{k_s\left(n+2\right)}{2\pi}\left(\cos\theta_r\right)^n
+\end{equation}
+
+Pro výpočet Phongova BRDF jsou využity následující parametry: 
+\begin{itemize}
+    \item[$k_s$:] Koeficient odrazivosti materiálu
+    \item[$k_d$:] Difuzivní koeficient materiálu
+    \item[$n$:] Lesklost materiálu
+    \item[$\uvec{n}$:] Vektor normály povrchu
+    \item[$\uvec{r}$:] Vektor zrcadlového odrazu světla, platí: $\uvec{r} = 2\left(\uvec{l}\cdot\uvec{n}\right)\uvec{n}-\uvec{l}$ , kde $\uvec{l}$ je světelný vektor ve směru ke světelnému zdroji.  
+    \item[$\uvec{v}$:] Pohledový vektor, směr od bodu k pozorovateli
+    \item[$\uvec{h}$:] Poloviční vektor mezi pohledovým a světelným vektorem. Platí: $\uvec{h} = \frac{\uvec{l} + \uvec{v}}{\| \uvec{l} + \uvec{v}\|}$
+    \item[$\theta_r$:] Úhel odrazu, platí: $\cos\theta_r = \uvec{v}\cdot\uvec{r}$
+\end{itemize}
+
+\subsubsection{Cook-Torrance}
+\subsubsection{Torrance-Sparrow}
+Torrance-Sparrow BRDF patří mezi fyzikální modely a je považován za jeden s nejúplnějších modelů \cite{BRDFOverview}. Mimo jiné je např. schopen simulovat odlesk polarizovaného světla. Tento model simuluje mikroploškové materiály a pomocí parametru roughness (drsnost) simuluje mikroskopické nerovnosti materiálu. Orientace mikroskopických nerovností je v materiálu náhodná. Vyšší hodnota drsnosti materiálu snižuje lesklost materiálu. Torrance-Sparrow brdf funkce je definována \hyperref[eq:TorranceSparrow]{vzorcem \ref{eq:TorranceSparrow}}. \par 
+Pro výpočet se používá distribuční funkce $D$, která generuje rozložení normál mikroplošek. V této konkrétní implementaci je použita Beckmannova distribuční funkce. Beckmannova distribuční funkce pracuje s normálou mikroplošky (kolem které se generuje rozložení) a hodnotou drsnosti materiálu. Jako normála mikroplošky je použit poloviční vektor mezi pohledovým a světelným vektorem (viz \hyperref[sec:Phong]{\ref{sec:Phong} Phong}) z důvodu, že mikroploška perfektně odráží světlo právě v případě, kdy je orientovaná podél polovičního vektoru \cite{PHARR2017507}. \par
+Dále se počítá poměr odraženého světla a lomeného světla $F$ pomocí Fresnelových vzorců. Pro výpočet je použita Schlickova aproximace \cite{SchlickFresnel}. \par
+Poslední část pro výpočet je koeficient geometrického útlumu $G$, která vyjadřuje zakrytí mikroplošek při odrazu světla \cite{BRDFOverview}.
+
+
+\begin{eqnarray}
+  f_r\left(p,\omega_{out},\omega_{in}\right) & = & \frac{k_d}{\pi} + \frac{k_sD(h,m)F(\omega_{out})G(\omega_{out},\omega_{in})}{4\pi (n\cdot \omega_{in})}\label{eq:TorranceSparrow}\\
+  D(h,m) & = & \frac{e^{\left(\frac{(\uvec{n}\cdot \uvec{h})^2-1}{m^2(\uvec{n}\cdot \uvec{h})^2}\right)}}{m^2(\uvec{n}\cdot \uvec{h})^2}\\
+  F(\omega_{out}) & \approx & R(\theta) = f_0 + (1-f_0)(1-\cos\theta)^5\\
+  G(\omega_{out},\omega_{in}) & = & min \left( 1, \frac{2 ( \uvec{n} \cdot \uvec{h} ) ( \uvec{n} \cdot \omega_{out} )
+  }{ ( \omega_{out} \cdot \uvec{h} ) },\frac{ 2 ( \uvec{n} \cdot \uvec{h} ) ( \uvec{n} \cdot \omega_{in} ) }{ ( \omega_{out} \cdot \uvec{h} ) } \right)
+\end{eqnarray}
+\subsubsection{Oren-Nayar}
+
+\clearpage
+\section{Vizualizace BRDF}
+Následující odstavce se zabývají konkrétními detaily implementace a technických řešení pro zobrazení BRDF funkcí.  
+
+\subsection{Generování vizualizace BRDF}
+Při implementaci jsem se chtěl co nejvíce přiblížit standardním referenčním obrázkům popisujícím princip BRDF funkcí (viz \hyperref[fig:brdf2D]{obrázek \ref{fig:brdf2D}}). Pro vizualizaci jsem se rozhodl vygenerovat jednotkovou polokouli a jednotlivé body polokoule upravit v OpenGL Vertex shaderu. Při generování polokoule jsem narazil na problém, kdy pro vizualizaci bylo potřeba mít co nejrovnoměrněji rozložené polygony, ideálně všechny s podobnou velikostí. Rozhodl jsem se tedy negenerovat UV kouli, ale geodetický mnohostěn (srovnání na \hyperref[fig:spheresComparison]{obrázku \ref{fig:spheresComparison}}), který je tvořen rovnostrannými trojúhelníky. Pro zjednodušení jsem vycházel z kódu pro dvacetistěn \cite{OpenGLSphere}, jehož trojúhelníkové stěny jsem dále rekurzivně dělil. Postup generování hemisféry použité pro vykreslení BRDF funkcí je zobrazen na \hyperref[fig:hemisfera]{obrázku \ref{fig:hemisfera}}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=10cm]{Figures/IcosphereUVSphereComparison.png}
+    \caption{Srovnání UV koule a geodetického mnohostěnu, z \cite{tan_2019}}
+    \label{fig:spheresComparison}
+\end{figure}
 
 \begin{figure}[ht]%
   \centering
@@ -94,110 +257,9 @@
   \qquad
   \subfloat[Poloviční dvacetistěn, $3\times$ rozdělené polygony \label{fig:halficasehedron3}]{{\includegraphics[width=5cm]{Figures/halficosphere3.png} }}%
   \caption{Postup generování hemisféry}%
-  \label{fig:hemisféra}%
-\end{figure}
-
-\section{Tutorials}
-
-\subsection{Images}
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.4\textwidth]{Figures/CoffeeAndComputer.jpg}
-\end{figure}
-
-\begin{figure}
-  \centering
-  \subfloat[neorientovaný graf\label{fig:Subfig1}]
-  {
-    \includegraphics[width=0.35\textwidth]{Figures/FigA.pdf}
-  }
-  \hspace{3em} % make more space
-  \subfloat[reprezentace grafu\label{fig:Subfig2}]
-  {
-    \includegraphics[width=0.35\textwidth]{Figures/FigB.pdf}
-  }
-  \caption{Ukázkový obrázek se dvěma podobrázky}
-  \label{fig:TopLevelFigureLabel}
-\end{figure}
-
-
-\subsection{Source code}
-\begin{minted}[style=vs, frame=lines,linenos]{c++}
-// My first program in C++
-// Příšerně žluťoučký kůň úpěl ďábelské ódy
-\end{minted}
-\subsection{Tables}
-
-\begin{table}
-  \centering
-  \caption[Krátký popisek dvou tabulek]{Ukázka dvou velice malých tabulek a způsob, jak je sdružit dohromady}
-  \label{tab:TopLevelTableLabel}
-  \subfloat[velice malinká tabulka\label{tab:Subtable1}]
-  {
-    \begin{tabular}{lr}
-      \toprule
-      Viverra         & Bibendum \\
-      \midrule
-      integer lacinia & 10       \\
-      autem vel eum   & 25       \\
-      velit esse      & 4        \\
-      tincidunt       & 256      \\
-      \midrule
-    \end{tabular}
-  }
-  \hspace{3em} % make more space between subtables
-  \subfloat[o něco větší tabulka\label{tab:Subtable2}]
-  {
-    \begin{tabular}{lcd{2}}
-      \toprule
-      Duis             & Esse & \multicolumn{1}{r}{Convallis} \\
-      \midrule
-      donec vitae arcu & e    & 2,15                          \\
-      elementum        & s    & 3,00                          \\
-      scelerisque      & t    & 78,0                          \\
-      vehicula         & t    & -1,15                         \\
-      tempor           & u    & 24                            \\
-      placerat         & h    & 13                            \\
-      \midrule
-    \end{tabular}
-  }
-\end{table}
-
-\section{Equations}
-
-\begin{equation}
-  \left(\sum_{n=1}^{\infty}a_{n}b_{n}\right)^{2} \leq
-  \sum_{n=1}^{\infty}a_{n}^{2} \cdot \sum_{n=1}^{\infty}b_{n}^{2}
-  \label{eq:A}
-\end{equation}
-
-\begin{eqnarray}
-  (x+y)^{3} & = & (x+y)(x+y)^{2}\label{eq:B}\\
-  & = & (x+y)(x^{2}+2xy+y^{2})\nonumber\\
-  & = & x^{3}+3x^{2}y+3xy^{2}+y^{3}\label{eq:C}
-\end{eqnarray}
-\subsection{Jak citovat}
-Obecně lze říci, že pro bibliografické odkazy a citace dokumentů používáme zásadně normu ČSN ISO 690.
-\subsubsection{Odkaz v textu}
-Pro odkazy v textu používáme číselné označení citací dokumentů ohraničené hranatými závorkami. Takže například můžeme citovat časopisecké \emph{články} \cite{herrmann, bertram, moore, yoon, sigfridsson, baez/article}, \emph{knihy} \cite{wilde, nietzsche:ksa1, averroes/bland, hammond, cotton, knuth:ct:a, gerhardt, gonzalez, companion}, \emph{periodika} \cite{jcg}, \emph{bakalářské, diplomové či diserteční práce} \cite{geer}, \emph{patenty} \cite{kowalik, almendro, sorace, laufenberg}, \emph{online zdroje} \cite{ctan, wassenberg, itzhaki, markey, baez/online} či \emph{manuály} \cite{cms}.
-
-\subsubsection{Seznam citací}
-Seznam citací je umístěn na konci závěrečné práce, před přílohami, a musí obsahovat všechny citace na které je v textu práce odkazováno.
-
-\subsection{Překlad}
-Kompilaci této ukázkové práce je možné provést pomocí několika volání pdf\LaTeX{}u a programu Biber v následujícím pořadí:
-\begin{verbatim}
-pdflatex main
-biber main
-pdflatex main
-pdflatex main
-\end{verbatim}
-
+  \label{fig:hemisfera}%
+\end{figure} 
 
 \printbibliography[title={Literatura}, heading=bibintoc]
-
-
 \appendix
-
 \end{document}
