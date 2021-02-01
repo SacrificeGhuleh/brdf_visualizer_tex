@@ -96,7 +96,7 @@
 TODO
 \clearpage
 \section{BRDF}
-BRDF je matematická funkce, která definuje pro daný materiál odrazivost povrchu. Určuje pro každý bod tělesa distribuci odrazu světla. Na \hyperref[fig:brdf2D]{obrázku \ref{fig:brdf2D}} je znázorněn základní princip BRDF funkce. Vektor $\vv{n}$ je normála povrchu, $\vv{\omega}_{in}$ značí směr ke světelnému zdroji, $\vv{\omega}_{out}$ značí směr k pozorovateli (ke kameře). BRDF je definována pro dvojici vektorů  $\vv{\omega}_{in}$ a $\vv{\omega}_{out}$ v daném bodě $p$ pomocí \hyperref[eq:brdf]{vzorce \ref{eq:brdf}}.
+BRDF je matematická funkce, která definuje pro daný materiál odrazivost povrchu. Určuje pro každý bod tělesa distribuci odrazu světla. Na \hyperref[fig:brdf2D]{obrázku \ref{fig:brdf2D}} je znázorněn základní princip BRDF funkce. Vektor \(\vv{n}\) je normála povrchu, \(\vv{\omega}_{in}\) značí směr ke světelnému zdroji, \(\vv{\omega}_{out}\) značí směr k pozorovateli (ke kameře). BRDF je definována pro dvojici vektorů  \(\vv{\omega}_{in}\) a \(\vv{\omega}_{out}\) v daném bodě \(p\) pomocí \hyperref[eq:brdf]{vzorce \ref{eq:brdf}}.
 % Pbrt strana 350
 
 \begin{equation} \label{eq:brdf}
@@ -106,7 +106,7 @@ BRDF je matematická funkce, která definuje pro daný materiál odrazivost povr
 Je žádoucí, aby BRDF funkce splňovaly některá základní pravidla. Je důležitá  fyzikální přesnost BRDF funkce, pro kterou musí být musí být splněny následující podmínky \cite{PHARR2017313}:
 \begin{enumerate}
     % 10.3 Reciprocity 
-    \item Princip vzájemnosti (Helmholtzův princip reciprocity, \cite{hapke_2012}) - Pro všechny dvojice $\vv{\omega}_{in}$ a $\vv{\omega}_{out}$ platí: $f_r\left(p,\omega_{out},\omega_{in}\right) = f_r\left(p,\omega_{in},\omega_{out}\right)$
+    \item Princip vzájemnosti (Helmholtzův princip reciprocity, \cite{hapke_2012}) - Pro všechny dvojice \(\vv{\omega}_{in}\) a \(\vv{\omega}_{out}\) platí: \(f_r\left(p,\omega_{out},\omega_{in}\right) = f_r\left(p,\omega_{in},\omega_{out}\right)\)
     \item Princip zachování energie - Celková energie odraženého světla nemůže být vyšší, než energie vstupního světla
     \item BRDF musí mít vždy nezáporný výsledek
 \end{enumerate}
@@ -119,21 +119,21 @@ Je žádoucí, aby BRDF funkce splňovaly některá základní pravidla. Je důl
         % hemisphere
         \draw (-4,0) arc (180:0:4 and 4);
 
-        \draw [thick, ->] (0,0) -- ++(-5,0) node [at end, above] () {$\vv{t}$};
-        \draw [thick, ->] (0,0) -- ++(135:5cm) node [at end, above] () {$\vv{\omega}_{out}$};
+        \draw [thick, ->] (0,0) -- ++(-5,0) node [at end, above] () {\(\vv{t}\)};
+        \draw [thick, ->] (0,0) -- ++(135:5cm) node [at end, above] () {\(\vv{\omega}_{out}\)};
         % y
-        \draw [thick, thick, ->] (0,0) -- ++(0,5) node [at end, above] () {$\vv{n}$};
+        \draw [thick, thick, ->] (0,0) -- ++(0,5) node [at end, above] () {\(\vv{n}\)};
         % z
-        \draw [thick, ->] (0,0,0) -- ++(0,-2.5,-2.5) node [at end, above] () {$\vv{b}$};
+        \draw [thick, ->] (0,0,0) -- ++(0,-2.5,-2.5) node [at end, above] () {\(\vv{b}\)};
         % lines spanning angle alpha
-        \draw [thick, ->] (0,0) -- ++(45:5cm) node [at end, above] () {$\vv{\omega}_{in}$};
+        \draw [thick, ->] (0,0) -- ++(45:5cm) node [at end, above] () {\(\vv{\omega}_{in}\)};
 
         \draw [thin, dashed] (0,0) -- ++(55:3cm);
         \draw [thin, dashed] (0,0) -- ++(35:3cm);
 
         \draw[thin, dashed, rotate=45] (3,0) ellipse (0.25cm and 0.5cm);
 
-        \draw [thin, <->] (0,0) ++(90:1.5cm) arc (90:45:1.5cm) node [midway, above] () {$\theta_{in}$};
+        \draw [thin, <->] (0,0) ++(90:1.5cm) arc (90:45:1.5cm) node [midway, above] () {\(\theta_{in}\)};
 
         \draw [thin, dashed] (1.5,1.5) -- ++(0,-2);
         \draw [thin, dashed] (0,0) -- ++(1.5,-0.5);
@@ -141,14 +141,14 @@ Je žádoucí, aby BRDF funkce splňovaly některá základní pravidla. Je důl
         \draw [thin, dashed] (-2,2) -- ++(0,-2.53);
         \draw [thin, dashed] (0,0) -- ++(-2,-0.5);
 
-        \draw [thin, <->] (0,0) ++(180:2.1cm) arc (185:205:1.5cm) node [midway, left] () {$\phi_{out}$};
+        \draw [thin, <->] (0,0) ++(180:2.1cm) arc (185:205:1.5cm) node [midway, left] () {\(\phi_{out}\)};
 
-        \draw [thin, <->] (0,0) ++(180:1.7cm) arc (185:326:1.5cm and 0.75cm) node [midway, left] () {$\phi_{in}$};
+        \draw [thin, <->] (0,0) ++(180:1.7cm) arc (185:326:1.5cm and 0.75cm) node [midway, left] () {\(\phi_{in}\)};
 
-        \draw [thin, <->] (0,0) ++(90:2cm) arc (90:135:2cm) node [midway, above] () {$\theta_{out}$};
+        \draw [thin, <->] (0,0) ++(90:2cm) arc (90:135:2cm) node [midway, above] () {\(\theta_{out}\)};
 
 
-        \draw (-0.05,-0.3) node () {$p$};
+        \draw (-0.05,-0.3) node () {\(p\)};
     \end{tikzpicture}
     \caption{Základní vizualizace BRDF funkce}
     \label{fig:brdf2D}
@@ -164,14 +164,14 @@ Pro rychlý přehled vlastností jednotlivých BRDF funkcí je možné využít 
         \hline
         BRDF model          & \rotatebox{60}{Physical} & \rotatebox{60}{Plausible} & \rotatebox{60}{Fresnel Eq}. & \rotatebox{60}{Anisotropic} & \rotatebox{60}{Sampling} & \rotatebox{60}{Rel. cost (cycles)} & \rotatebox{60}{Material type} \\
         \hline
-        Ideální odraz       & \true                    & \true                     & \false                      & \false                      & \true                    & $x$                                &                               \\
-        Lambert             & \true                    & \true                     & \false                      & \false                      & \true                    & $x$                                &                               \\
+        Ideální odraz       & \true                    & \true                     & \false                      & \false                      & \true                    & \(x\)                              &                               \\
+        Lambert             & \true                    & \true                     & \false                      & \false                      & \true                    & \(x\)                              &                               \\
         Phong               & \false                   & \false                    & \false                      & \false                      & \true                    & \unknown                           &                               \\
-        Blinn-Phong         & \false                   & \false                    & \false                      & \false                      & \true                    & $9.18x$                            &                               \\
+        Blinn-Phong         & \false                   & \false                    & \false                      & \false                      & \true                    & \(9.18x\)                          &                               \\
         Phys. correct Phong & \false                   & \true                     & \false                      & \false                      & \true                    & \unknown                           &                               \\
         Torrance-Sparrow    & \true                    & \false                    & \true                       & \true                       & \false                   & \unknown                           &                               \\
-        Cook-Torrance       & \true                    & \true                     & \true                       & \false                      & \false                   & $16.9x$                            &                               \\
-        Oren-Nayar          & \true                    & \true                     & \false                      & \false                      & \true                    & $10.98x$                           &                               \\
+        Cook-Torrance       & \true                    & \true                     & \true                       & \false                      & \false                   & \(16.9x\)                          &                               \\
+        Oren-Nayar          & \true                    & \true                     & \false                      & \false                      & \true                    & \(10.98x\)                         &                               \\
         \hline
     \end{tabular}
     \caption{Stručný přehled implementovaných BRDF funkcí}
@@ -184,7 +184,7 @@ Lambertovo BRDF (Lambertovský povrch) se řadí mezi analytické modely BRDF. P
 \begin{equation} \label{eq:lambertBRDF}
     f_r\left(p,\omega_{out},\omega_{in}\right) = \frac{\rho_d}{\pi} = konst.
 \end{equation}
-$\rho_d$ ve \hyperref[eq:lambertBRDF]{vztahu \ref{eq:lambertBRDF}} vyjadřuje poměr mezi pohlceným a odraženým světlem. Tato veličina je také odborně nazývána pojmem albedo. Dělení konstantou $\pi$ zajišťuje platnost zákona zachování energie. Díky nezávislosti na směru vstupního paprsku je také splněna reciprocita.
+\(\rho_d\) ve \hyperref[eq:lambertBRDF]{vztahu \ref{eq:lambertBRDF}} vyjadřuje poměr mezi pohlceným a odraženým světlem. Tato veličina je také odborně nazývána pojmem albedo. Dělení konstantou \(\pi\) zajišťuje platnost zákona zachování energie. Díky nezávislosti na směru vstupního paprsku je také splněna reciprocita.
 
 \subsubsection{Phong} \label{sec:Phong}
 Phongovo BRDF vychází z Phongova osvětlovacího modelu, řadí se mezi analytické modely BRDF a používá se pro lesklé povrchy. Původní model je definován \hyperref[eq:phongBRDF]{vzorcem \ref{eq:phongBRDF}} \cite{Phong1975}
@@ -198,7 +198,7 @@ Upravený, také často využívaný Blinn-Phong model je definován \hyperref[e
     f_r\left(p,\omega_{out},\omega_{in}\right) = k_s(\uvec{n}\cdot\uvec{h})^n
 \end{equation}
 
-Jak Phong, tak Blinn-Phong modely nejsou fyzikálně přesné - nesplňují zákon zachování energie, ani zákon reciprocity \cite{BRDFOverview}. Phongovo BRDF je možné dále upravit, aby byly splněny pravidla pro fyzikální korektnost. Fyzikálně korektní Phongovo BRDF je definováno \hyperref[eq:phongPhysicalBRDF]{vzorcem \ref{eq:phongPhysicalBRDF}}. Pro fyzikální korektnost této varianty Phongova BRDF je potřeba dodržet $k_d + k_s \leq 1$ \cite{LaFortunePhongBRDF}.
+Jak Phong, tak Blinn-Phong modely nejsou fyzikálně přesné - nesplňují zákon zachování energie, ani zákon reciprocity \cite{BRDFOverview}. Phongovo BRDF je možné dále upravit, aby byly splněny pravidla pro fyzikální korektnost. Fyzikálně korektní Phongovo BRDF je definováno \hyperref[eq:phongPhysicalBRDF]{vzorcem \ref{eq:phongPhysicalBRDF}}. Pro fyzikální korektnost této varianty Phongova BRDF je potřeba dodržet \(k_d + k_s \leq 1\) \cite{LaFortunePhongBRDF}.
 
 \begin{equation} \label{eq:phongPhysicalBRDF}
     f_r\left(p,\omega_{out},\omega_{in}\right) = \frac{k_d}{\pi} +
@@ -207,19 +207,19 @@ Jak Phong, tak Blinn-Phong modely nejsou fyzikálně přesné - nesplňují zák
 
 Pro výpočet Phongova BRDF jsou využity následující parametry:
 \begin{itemize}
-    \item[$k_s$:] Koeficient odrazivosti materiálu
-    \item[$k_d$:] Difuzivní koeficient materiálu
-    \item[$n$:] Lesklost materiálu
-    \item[$\uvec{r}$:] Vektor zrcadlového odrazu světla, platí: $\uvec{r} = 2\left(\omega_{in}\cdot\uvec{n}\right)\uvec{n}-\omega_{in}$
-    \item[$\uvec{h}$:] Poloviční vektor mezi pohledovým a světelným vektorem. Platí: $\uvec{h} = \frac{\omega_{in} + \omega_{out}}{\| \omega_{in} + \omega_{out}\|}$
-    \item[$\theta_r$:] Úhel odrazu, platí: $\cos\theta_r = \omega_{out}\cdot\uvec{r}$
+    \item[\(k_s\):] Koeficient odrazivosti materiálu
+    \item[\(k_d\):] Difuzivní koeficient materiálu
+    \item[\(n\):] Lesklost materiálu
+    \item[\(\uvec{r}\):] Vektor zrcadlového odrazu světla, platí: \(\uvec{r} = 2\left(\omega_{in}\cdot\uvec{n}\right)\uvec{n}-\omega_{in}\)
+    \item[\(\uvec{h}\):] Poloviční vektor mezi pohledovým a světelným vektorem. Platí: \(\uvec{h} = \frac{\omega_{in} + \omega_{out}}{\| \omega_{in} + \omega_{out}\|}\)
+    \item[\(\theta_r\):] Úhel odrazu, platí: \(\cos\theta_r = \omega_{out}\cdot\uvec{r}\)
 \end{itemize}
 
 \subsubsection{Torrance-Sparrow} \label{sec:torrancesparrow}
 Torrance-Sparrow BRDF patří mezi fyzikální modely a je považován za jeden s nejúplnějších modelů \cite{BRDFOverview}. Mimo jiné je např. schopen simulovat odlesk polarizovaného světla. Tento model simuluje mikroploškové materiály a pomocí parametru roughness (drsnost) simuluje mikroskopické nerovnosti materiálu. Orientace mikroskopických nerovností je v materiálu náhodná. Vyšší hodnota drsnosti materiálu snižuje lesklost materiálu. Torrance-Sparrow brdf funkce je definována \hyperref[eq:TorranceSparrow]{vzorcem \ref{eq:TorranceSparrow}}. \par
-Pro výpočet se používá distribuční funkce $D$, která generuje rozložení normál mikroplošek. V této konkrétní implementaci je použita Beckmannova distribuční funkce. Beckmannova distribuční funkce pracuje s normálou mikroplošky (kolem které se generuje rozložení) a hodnotou drsnosti materiálu. Jako normála mikroplošky je použit poloviční vektor mezi pohledovým a světelným vektorem (viz \hyperref[sec:Phong]{\ref{sec:Phong} Phong}) z důvodu, že mikroploška perfektně odráží světlo právě v případě, kdy je orientovaná podél polovičního vektoru \cite{PHARR2017507}. \par
-Dále se počítá poměr odraženého světla a lomeného světla $F$ pomocí Fresnelových vzorců. Pro výpočet je použita Schlickova aproximace \cite{SchlickFresnel}. \par
-Poslední část pro výpočet je koeficient geometrického útlumu $G$, která vyjadřuje zakrytí mikroplošek při odrazu světla \cite{BRDFOverview}.
+Pro výpočet se používá distribuční funkce \(D\), která generuje rozložení normál mikroplošek. V této konkrétní implementaci je použita Beckmannova distribuční funkce. Beckmannova distribuční funkce pracuje s normálou mikroplošky (kolem které se generuje rozložení) a hodnotou drsnosti materiálu. Jako normála mikroplošky je použit poloviční vektor mezi pohledovým a světelným vektorem (viz \hyperref[sec:Phong]{\ref{sec:Phong} Phong}) z důvodu, že mikroploška perfektně odráží světlo právě v případě, kdy je orientovaná podél polovičního vektoru \cite{PHARR2017507}. \par
+Dále se počítá poměr odraženého světla a lomeného světla \(F\) pomocí Fresnelových vzorců. Pro výpočet je použita Schlickova aproximace \cite{SchlickFresnel}. \par
+Poslední část pro výpočet je koeficient geometrického útlumu \(G\), která vyjadřuje zakrytí mikroplošek při odrazu světla \cite{BRDFOverview}.
 
 
 \begin{eqnarray}
@@ -230,7 +230,7 @@ Poslední část pro výpočet je koeficient geometrického útlumu $G$, která 
         }{ ( \omega_{out} \cdot \uvec{h} ) },\frac{ 2 ( \uvec{n} \cdot \uvec{h} ) ( \uvec{n} \cdot \omega_{in} ) }{ ( \omega_{out} \cdot \uvec{h} ) } \right)
 \end{eqnarray}
 \subsubsection{Cook-Torrance}
-Cook-Torrance BRDF rozšiřuje mikroploškové BRDF s myšlenkou, že pouze mikroplošky orientované podél vektoru $\uvec{h}$ mají vliv na výsledném odrazu světla. Odrazová složka výsledného obrazu využívá pro výpočet opět funkce $F, D, G$ (viz \hyperref[sec:torrancesparrow]{\ref{sec:torrancesparrow} Torrance-Sparrow}). Cook-Torrance BRDF se vypočítá podle \hyperref[eq:CookTorrance]{vzorce \ref{eq:CookTorrance}} \cite{CookTorranceBRDF}. Nevýhodou této BRDF funkce je nesplnění fyzikální přesnosti z důvodu nesplnění zákona zachování energie pro některé úhly $\omega_{out},\omega_{in}$ \cite{BRDFOverview}.
+Cook-Torrance BRDF rozšiřuje mikroploškové BRDF s myšlenkou, že pouze mikroplošky orientované podél vektoru \(\uvec{h}\) mají vliv na výsledném odrazu světla. Odrazová složka výsledného obrazu využívá pro výpočet opět funkce \(F, D, G\) (viz \hyperref[sec:torrancesparrow]{\ref{sec:torrancesparrow} Torrance-Sparrow}). Cook-Torrance BRDF se vypočítá podle \hyperref[eq:CookTorrance]{vzorce \ref{eq:CookTorrance}} \cite{CookTorranceBRDF}. Nevýhodou této BRDF funkce je nesplnění fyzikální přesnosti z důvodu nesplnění zákona zachování energie pro některé úhly \(\omega_{out},\omega_{in}\) \cite{BRDFOverview}.
 
 \begin{equation} \label{eq:CookTorrance}
     f_r\left(p,\omega_{out},\omega_{in}\right)  = \frac{F(\omega_{out})}{\pi} \frac{D(h,m)}{(\uvec{n}\cdot\omega_{in})} \frac{G(\omega_{out},\omega_{in})}{(\uvec{n}\cdot\omega_{out})}
@@ -256,9 +256,9 @@ Při implementaci jsem se chtěl co nejvíce přiblížit standardním referenč
     \qquad
     \subfloat[Poloviční dvacetistěn \label{fig:halficasehedron}]{{\includegraphics[width=5cm]{Figures/halficosphere.png} }}%
     \qquad
-    \subfloat[Poloviční dvacetistěn, $1\times$ rozdělené polygony \label{fig:halficasehedron1}]{{\includegraphics[width=5cm]{Figures/halficosphere1.png} }}%
+    \subfloat[Poloviční dvacetistěn, \(1\times\) rozdělené polygony \label{fig:halficasehedron1}]{{\includegraphics[width=5cm]{Figures/halficosphere1.png} }}%
     \qquad
-    \subfloat[Poloviční dvacetistěn, $3\times$ rozdělené polygony \label{fig:halficasehedron3}]{{\includegraphics[width=5cm]{Figures/halficosphere3.png} }}%
+    \subfloat[Poloviční dvacetistěn, \(3\times\) rozdělené polygony \label{fig:halficasehedron3}]{{\includegraphics[width=5cm]{Figures/halficosphere3.png} }}%
     \caption{Postup generování hemisféry}%
     \label{fig:hemisfera}%
 \end{figure}
