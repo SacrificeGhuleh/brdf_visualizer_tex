@@ -93,7 +93,8 @@
 % A nasleduje text zaverecne prace.
 
 \section{Úvod}
-
+TODO
+\clearpage
 \section{BRDF}
 BRDF je matematická funkce, která definuje pro daný materiál odrazivost povrchu. Určuje pro každý bod tělesa distribuci odrazu světla. Na \hyperref[fig:brdf2D]{obrázku \ref{fig:brdf2D}} je znázorněn základní princip BRDF funkce. Vektor $\vv{n}$ je normála povrchu, $\vv{\omega}_{in}$ značí směr ke světelnému zdroji, $\vv{\omega}_{out}$ značí směr k pozorovateli (ke kameře). BRDF je definována pro dvojici vektorů  $\vv{\omega}_{in}$ a $\vv{\omega}_{out}$ v daném bodě $p$ pomocí \hyperref[eq:brdf]{vzorce \ref{eq:brdf}}. 
 % Pbrt strana 350
@@ -216,7 +217,6 @@ Pro výpočet Phongova BRDF jsou využity následující parametry:
     \item[$\theta_r$:] Úhel odrazu, platí: $\cos\theta_r = \uvec{v}\cdot\uvec{r}$
 \end{itemize}
 
-\subsubsection{Cook-Torrance}
 \subsubsection{Torrance-Sparrow}
 Torrance-Sparrow BRDF patří mezi fyzikální modely a je považován za jeden s nejúplnějších modelů \cite{BRDFOverview}. Mimo jiné je např. schopen simulovat odlesk polarizovaného světla. Tento model simuluje mikroploškové materiály a pomocí parametru roughness (drsnost) simuluje mikroskopické nerovnosti materiálu. Orientace mikroskopických nerovností je v materiálu náhodná. Vyšší hodnota drsnosti materiálu snižuje lesklost materiálu. Torrance-Sparrow brdf funkce je definována \hyperref[eq:TorranceSparrow]{vzorcem \ref{eq:TorranceSparrow}}. \par 
 Pro výpočet se používá distribuční funkce $D$, která generuje rozložení normál mikroplošek. V této konkrétní implementaci je použita Beckmannova distribuční funkce. Beckmannova distribuční funkce pracuje s normálou mikroplošky (kolem které se generuje rozložení) a hodnotou drsnosti materiálu. Jako normála mikroplošky je použit poloviční vektor mezi pohledovým a světelným vektorem (viz \hyperref[sec:Phong]{\ref{sec:Phong} Phong}) z důvodu, že mikroploška perfektně odráží světlo právě v případě, kdy je orientovaná podél polovičního vektoru \cite{PHARR2017507}. \par
@@ -231,7 +231,10 @@ Poslední část pro výpočet je koeficient geometrického útlumu $G$, která 
   G(\omega_{out},\omega_{in}) & = & min \left( 1, \frac{2 ( \uvec{n} \cdot \uvec{h} ) ( \uvec{n} \cdot \omega_{out} )
   }{ ( \omega_{out} \cdot \uvec{h} ) },\frac{ 2 ( \uvec{n} \cdot \uvec{h} ) ( \uvec{n} \cdot \omega_{in} ) }{ ( \omega_{out} \cdot \uvec{h} ) } \right)
 \end{eqnarray}
+\subsubsection{Cook-Torrance}
+TODO
 \subsubsection{Oren-Nayar}
+TODO
 
 \clearpage
 \section{Vizualizace BRDF}
