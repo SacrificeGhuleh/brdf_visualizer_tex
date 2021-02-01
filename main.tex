@@ -189,7 +189,7 @@ $\rho_d$ ve \hyperref[eq:lambertBRDF]{vztahu \ref{eq:lambertBRDF}} vyjadřuje po
 \subsubsection{Phong} \label{sec:Phong}
 Phongovo BRDF vychází z Phongova osvětlovacího modelu, řadí se mezi analytické modely BRDF a používá se pro lesklé povrchy. Původní model je definován \hyperref[eq:phongBRDF]{vzorcem \ref{eq:phongBRDF}} \cite{Phong1975}
 \begin{equation} \label{eq:phongBRDF}
-    f_r\left(p,\omega_{out},\omega_{in}\right) = k_s(\uvec{r}\cdot\uvec{v})^n
+    f_r\left(p,\omega_{out},\omega_{in}\right) = k_s(\uvec{r}\cdot\omega_{out})^n
 \end{equation}
 
 Upravený, také často využívaný Blinn-Phong model je definován \hyperref[eq:blinnBRDF]{vzorcem \ref{eq:blinnBRDF}} \cite{BlinnPhong1977}. Výhodou upraveného Blinn-Phongova modelu oproti klasickému Phongovu modelu je hladší přechod odlesku světla. 
@@ -211,9 +211,9 @@ Pro výpočet Phongova BRDF jsou využity následující parametry:
     \item[$k_d$:] Difuzivní koeficient materiálu
     \item[$n$:] Lesklost materiálu
     \item[$\uvec{r}$:] Vektor zrcadlového odrazu světla, platí: $\uvec{r} = 2\left(\uvec{l}\cdot\uvec{n}\right)\uvec{n}-\uvec{l}$ , kde $\uvec{l}$ je světelný vektor ve směru ke světelnému zdroji.  
-    \item[$\uvec{v}$:] Pohledový vektor, směr od bodu k pozorovateli
-    \item[$\uvec{h}$:] Poloviční vektor mezi pohledovým a světelným vektorem. Platí: $\uvec{h} = \frac{\uvec{l} + \uvec{v}}{\| \uvec{l} + \uvec{v}\|}$
-    \item[$\theta_r$:] Úhel odrazu, platí: $\cos\theta_r = \uvec{v}\cdot\uvec{r}$
+    \item[$\omega_{out}$:] Pohledový vektor, směr od bodu k pozorovateli
+    \item[$\uvec{h}$:] Poloviční vektor mezi pohledovým a světelným vektorem. Platí: $\uvec{h} = \frac{\uvec{l} + \omega_{out}}{\| \uvec{l} + \omega_{out}\|}$
+    \item[$\theta_r$:] Úhel odrazu, platí: $\cos\theta_r = \omega_{out}\cdot\uvec{r}$
 \end{itemize}
 
 \subsubsection{Torrance-Sparrow}
