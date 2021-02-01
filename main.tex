@@ -210,9 +210,9 @@ Pro výpočet Phongova BRDF jsou využity následující parametry:
     \item[$k_s$:] Koeficient odrazivosti materiálu
     \item[$k_d$:] Difuzivní koeficient materiálu
     \item[$n$:] Lesklost materiálu
-    \item[$\uvec{r}$:] Vektor zrcadlového odrazu světla, platí: $\uvec{r} = 2\left(\uvec{l}\cdot\uvec{n}\right)\uvec{n}-\uvec{l}$ , kde $\uvec{l}$ je světelný vektor ve směru ke světelnému zdroji.  
+    \item[$\uvec{r}$:] Vektor zrcadlového odrazu světla, platí: $\uvec{r} = 2\left(\omega_{in}\cdot\uvec{n}\right)\uvec{n}-\omega_{in}$ , kde $\omega_{in}$ je světelný vektor ve směru ke světelnému zdroji.  
     \item[$\omega_{out}$:] Pohledový vektor, směr od bodu k pozorovateli
-    \item[$\uvec{h}$:] Poloviční vektor mezi pohledovým a světelným vektorem. Platí: $\uvec{h} = \frac{\uvec{l} + \omega_{out}}{\| \uvec{l} + \omega_{out}\|}$
+    \item[$\uvec{h}$:] Poloviční vektor mezi pohledovým a světelným vektorem. Platí: $\uvec{h} = \frac{\omega_{in} + \omega_{out}}{\| \omega_{in} + \omega_{out}\|}$
     \item[$\theta_r$:] Úhel odrazu, platí: $\cos\theta_r = \omega_{out}\cdot\uvec{r}$
 \end{itemize}
 
