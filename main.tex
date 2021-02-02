@@ -178,7 +178,7 @@ Pro rychlý přehled vlastností jednotlivých BRDF funkcí je možné využít 
     \label{tab:brdfProperties}
 \end{table}
 
-\subsubsection{Lambert}
+\subsubsection{Lambert} \label{sec:Lambert}
 Lambertovo BRDF (Lambertovský povrch) se řadí mezi analytické modely BRDF. Popisuje ideálně matné povrchy, které odráží příchozí světlo do všech směrů rovnoměrně se stejnou pravděpodobností, nehledě na příchozí směr paprsku. Jedná se o nejjednodušší BRDF funkci, je definována \hyperref[eq:lambertBRDF]{vztahem \ref{eq:lambertBRDF}} \cite{Koppal2014}.
 %COmputer vision reference guide katushi, page 675 - Lambertian Reflectance
 \begin{equation} \label{eq:lambertBRDF}
@@ -234,6 +234,13 @@ Cook-Torrance BRDF rozšiřuje mikroploškové BRDF s myšlenkou, že pouze mikr
 
 \begin{equation} \label{eq:CookTorrance}
     f_r\left(p,\omega_{out},\omega_{in}\right)  = \frac{F(\omega_{out})}{\pi} \frac{D(h,m)}{(\uvec{n}\cdot\omega_{in})} \frac{G(\omega_{out},\omega_{in})}{(\uvec{n}\cdot\omega_{out})}
+\end{equation}
+
+\subsubsection{Oren-Nayar}
+Oren-Nayar BRDF popisuje Lambertovské difusivní materiály. Oproti Lambertovu BRDF (\hyperref[sec:Lambert]{viz \ref{sec:Lambert} Lambert}) pracuje s mikroploškami, které ale na rozdíl od mikroplošek popisovaných např. \hyperref[sec:torrancesparrow]{Torrance-Sparrow} modelem nejsou odrazivé, ale difuzivní. Oren-Nayar bere v úvahu odrazy světla mezi jednotlivými mikroploškami s limitovaným maximálním počtem odrazů mezi dvojicí mikroplošek. Pro generování distribuce orientace mikroplošek je použito Gaussovo rozdělení \cite{OrenNayar} \cite{BRDFOverview}. Oren-Nayar BRDF je definováno \hyperref[eq:OrenNayar]{vzorcem \ref{eq:OrenNayar}}
+
+\begin{equation} \label{eq:OrenNayar}
+    f_r\left(p,\omega_{out},\omega_{in}\right)  = TODO
 \end{equation}
 
 \clearpage
