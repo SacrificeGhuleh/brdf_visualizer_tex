@@ -217,17 +217,17 @@ Pro výpočet Phongova BRDF jsou využity následující parametry:
 
 \subsubsection{Torrance-Sparrow} \label{sec:torrancesparrow}
 Torrance-Sparrow BRDF patří mezi fyzikální modely a je považován za jeden s nejúplnějších modelů \cite{BRDFOverview}. Mimo jiné je např. schopen simulovat odlesk polarizovaného světla. Tento model simuluje mikroploškové materiály a pomocí parametru roughness (drsnost) simuluje mikroskopické nerovnosti materiálu. Orientace mikroskopických nerovností je v materiálu náhodná. Vyšší hodnota drsnosti materiálu snižuje lesklost materiálu. Torrance-Sparrow brdf funkce je definována \hyperref[eq:TorranceSparrow]{vzorcem \ref{eq:TorranceSparrow}}. \par
-Pro výpočet se používá distribuční funkce \(D\), která generuje rozložení normál mikroplošek. V této konkrétní implementaci je použita Beckmannova distribuční funkce. Beckmannova distribuční funkce pracuje s normálou mikroplošky (kolem které se generuje rozložení) a hodnotou drsnosti materiálu. Jako normála mikroplošky je použit poloviční vektor mezi pohledovým a světelným vektorem (viz \hyperref[sec:Phong]{\ref{sec:Phong} Phong}) z důvodu, že mikroploška perfektně odráží světlo právě v případě, kdy je orientovaná podél polovičního vektoru \cite{PHARR2017507}. \par
-Dále se počítá poměr odraženého světla a lomeného světla \(F\) pomocí Fresnelových vzorců. Pro výpočet je použita Schlickova aproximace \cite{SchlickFresnel}. \par
-Poslední část pro výpočet je koeficient geometrického útlumu \(G\), která vyjadřuje zakrytí mikroplošek při odrazu světla \cite{BRDFOverview}.
+Pro výpočet se používá distribuční funkce \(D\), která generuje rozložení normál mikroplošek. V této konkrétní implementaci je použita Beckmannova distribuční funkce (viz \hyperref[eq:beckDistr]{vzorec \ref{eq:beckDistr}}). Beckmannova distribuční funkce pracuje s normálou mikroplošky (kolem které se generuje rozložení) a hodnotou drsnosti materiálu. Jako normála mikroplošky je použit poloviční vektor mezi pohledovým a světelným vektorem (viz \hyperref[sec:Phong]{\ref{sec:Phong} Phong}) z důvodu, že mikroploška perfektně odráží světlo právě v případě, kdy je orientovaná podél polovičního vektoru \cite{PHARR2017507}. \par
+Dále se počítá poměr odraženého světla a lomeného světla \(F\) pomocí Fresnelových vzorců. Pro výpočet je použita Schlickova aproximace (viz \hyperref[eq:schlickFresnel]{vzorec \ref{eq:schlickFresnel}}) \cite{SchlickFresnel}. \par
+Poslední část pro výpočet je koeficient geometrického útlumu \(G\), která vyjadřuje zakrytí mikroplošek při odrazu světla (viz \hyperref[eq:geomAtatenuation]{vzorec \ref{eq:geomAtatenuation}}) \cite{BRDFOverview}.
 
 
 \begin{eqnarray}
     f_r\left(p,\omega_{out},\omega_{in}\right) & = & \frac{k_d}{\pi} + \frac{k_sD(h,m)F(\omega_{out})G(\omega_{out},\omega_{in})}{4\pi (\uvec{n}\cdot \omega_{in})}\label{eq:TorranceSparrow}\\
-    D(h,m) & = & \frac{e^{\left(\frac{(\uvec{n}\cdot \uvec{h})^2-1}{m^2(\uvec{n}\cdot \uvec{h})^2}\right)}}{m^2(\uvec{n}\cdot \uvec{h})^2}\\
-    F(\omega_{out}) & \approx & R(\theta) = f_0 + (1-f_0)(1-\cos\theta)^5\\
+    D(h,m) & = & \frac{e^{\left(\frac{(\uvec{n}\cdot \uvec{h})^2-1}{m^2(\uvec{n}\cdot \uvec{h})^2}\right)}}{m^2(\uvec{n}\cdot \uvec{h})^2}\label{eq:beckDistr}\\
+    F(\omega_{out}) & \approx & R(\theta) = f_0 + (1-f_0)(1-\cos\theta)^5\label{eq:schlickFresnel}\\
     G(\omega_{out},\omega_{in}) & = & min \left( 1, \frac{2 ( \uvec{n} \cdot \uvec{h} ) ( \uvec{n} \cdot \omega_{out} )
-        }{ ( \omega_{out} \cdot \uvec{h} ) },\frac{ 2 ( \uvec{n} \cdot \uvec{h} ) ( \uvec{n} \cdot \omega_{in} ) }{ ( \omega_{out} \cdot \uvec{h} ) } \right)
+        }{ ( \omega_{out} \cdot \uvec{h} ) },\frac{ 2 ( \uvec{n} \cdot \uvec{h} ) ( \uvec{n} \cdot \omega_{in} ) }{ ( \omega_{out} \cdot \uvec{h} ) } \right) \label{eq:geomAtatenuation}
 \end{eqnarray}
 \subsubsection{Cook-Torrance}
 Cook-Torrance BRDF rozšiřuje mikroploškové BRDF s myšlenkou, že pouze mikroplošky orientované podél vektoru \(\uvec{h}\) mají vliv na výsledném odrazu světla. Odrazová složka výsledného obrazu využívá pro výpočet opět funkce \(F, D, G\) (viz \hyperref[sec:torrancesparrow]{\ref{sec:torrancesparrow} Torrance-Sparrow}). Cook-Torrance BRDF se vypočítá podle \hyperref[eq:CookTorrance]{vzorce \ref{eq:CookTorrance}} \cite{CookTorranceBRDF}. Nevýhodou této BRDF funkce je nesplnění fyzikální přesnosti z důvodu nesplnění zákona zachování energie pro některé úhly \(\omega_{out},\omega_{in}\) \cite{BRDFOverview}.
