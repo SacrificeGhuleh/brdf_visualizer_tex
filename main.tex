@@ -168,16 +168,16 @@ Pro rychlý přehled vlastností jednotlivých BRDF funkcí je možné využít 
     \centering
     \begin{tabular}{r|lllllll}
         \hline
-        BRDF model          & \rotatebox{60}{Physical} & \rotatebox{60}{Plausible} & \rotatebox{60}{Fresnel Eq}. & \rotatebox{60}{Anisotropic} & \rotatebox{60}{Sampling} & \rotatebox{60}{Rel. cost (cycles)} & \rotatebox{60}{Material type} \\
+        BRDF model          & \rotatebox{90}{Physical} & \rotatebox{90}{Plausible} & \rotatebox{90}{Fresnel Eq}. & \rotatebox{90}{Anisotropic} & \rotatebox{90}{Sampling} & \rotatebox{90}{Rel. cost (cycles)} & \rotatebox{90}{Material type} \\
         \hline
-        Ideální odraz       & \true                    & \true                     & \false                      & \false                      & \true                    & \(x\)                              &                               \\
-        Lambert             & \true                    & \true                     & \false                      & \false                      & \true                    & \(x\)                              &                               \\
-        Phong               & \false                   & \false                    & \false                      & \false                      & \true                    & \unknown                           &                               \\
-        Blinn-Phong         & \false                   & \false                    & \false                      & \false                      & \true                    & \(9.18x\)                          &                               \\
-        Phys. correct Phong & \false                   & \true                     & \false                      & \false                      & \true                    & \unknown                           &                               \\
-        Torrance-Sparrow    & \true                    & \false                    & \true                       & \true                       & \false                   & \unknown                           &                               \\
-        Cook-Torrance       & \true                    & \true                     & \true                       & \false                      & \false                   & \(16.9x\)                          &                               \\
-        Oren-Nayar          & \true                    & \true                     & \false                      & \false                      & \true                    & \(10.98x\)                         &                               \\
+        Ideal reflection    & \true                    & \true                     & \false                      & \false                      & \true                    & \(x\)                              & Mirror, perfect spec.         \\
+        Lambert             & \true                    & \true                     & \false                      & \false                      & \true                    & \(x\)                              & Perfect diffuse               \\
+        Phong               & \false                   & \false                    & \false                      & \false                      & \true                    & \unknown                           & Rough surf.                   \\
+        Blinn-Phong         & \false                   & \false                    & \false                      & \false                      & \true                    & \(9.18x\)                          & Rough surf.                   \\
+        Phys. correct Phong & \false                   & \true                     & \false                      & \false                      & \true                    & \unknown                           & Rough surf.                   \\
+        Torrance-Sparrow    & \true                    & \false                    & \true                       & \true                       & \false                   & \unknown                           & Rough surf.                   \\
+        Cook-Torrance       & \true                    & \true                     & \true                       & \false                      & \false                   & \(16.9x\)                          & Metal, plastic                \\
+        Oren-Nayar          & \true                    & \true                     & \false                      & \false                      & \true                    & \(10.98x\)                         & Matte, dirty                  \\
         \hline
     \end{tabular}
     \caption{Stručný přehled implementovaných BRDF funkcí}
