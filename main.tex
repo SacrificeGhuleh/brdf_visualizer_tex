@@ -232,7 +232,7 @@ Poslední část pro výpočet je koeficient geometrického útlumu \(G\), kter�
 
 
 \begin{eqnarray}
-    f_r\left(p,\omega_{out},\omega_{in}\right) & = & \frac{k_d}{\pi} + \frac{k_sD(h,m)F(\omega_{out})G(\omega_{out},\omega_{in})}{4\pi (\uvec{n}\cdot \omega_{in})}\label{eq:TorranceSparrow}\\
+    f_r\left(p,\omega_{out},\omega_{in}\right) & = & \frac{k_d}{\pi} + \frac{k_s D(h,m) F(\omega_{out}) G(\omega_{out},\omega_{in})}{4\pi (\uvec{n}\cdot \omega_{in})}\label{eq:TorranceSparrow}\\
     D(h,m) & = & \frac{e^{\left(\frac{(\uvec{n}\cdot \uvec{h})^2-1}{m^2(\uvec{n}\cdot \uvec{h})^2}\right)}}{m^2(\uvec{n}\cdot \uvec{h})^2}\label{eq:beckDistr}\\
     F(\omega_{out}) & \approx & R(\theta) = f_0 + (1-f_0)(1-\cos\theta)^5\label{eq:schlickFresnel}\\
     G(\omega_{out},\omega_{in}) & = & min \left( 1, \frac{2 ( \uvec{n} \cdot \uvec{h} ) ( \uvec{n} \cdot \omega_{out} )
@@ -292,6 +292,48 @@ Při implementaci jsem se chtěl co nejvíce přiblížit standardním referenč
 \clearpage
 \section{Redukce variance, optimalizace Monte carlo}
 Následující kapitoly se zabývají redukcí variance při výpočtu renderovací rovnice pomocí Monte Carlo metody.
+\subsection{Převod vektoru z lokálního do globálního prostoru}
+V následujících kapitolách jsou popsány metody generování vzorků vektorů používaných pro výpočet odrazu světla. Problémem ale je, že tyto generované vektory nejsou orientovány podél normály. Generované vektory jsou typicky orientovány podle $\uvec{up}$ vektoru (vektor určující ve scéně osu směrem nahoru). Pro použití s libovolnou normálou je tedy nutné výsledný vektor vygenerované vzorkovací funkcí orotovat podél normálového vektoru. Tato funkce má také využití např. při generování vzorků pro odrazovou složku Phongova BRDF (viz \hyperref[sec:phongSampling]{\ref{sec:phongSampling} Vzorkování Phongova BRDF}). Vzhledem k tomu, že vzorkovací funkce samotná je při renderingu volána velmi často, je vhodné mít všechny kroky vzorkování co nejlépe optimalizované. Jednou z nejlepších metod pro rotaci vektrou je použití transformační matice. Pro rotaci ve 3D prostoru se využívá trojice elementárních rotačních matic, definovaných \hyperref[eq:rotX]{vzorci \ref{eq:rotX}, \ref{eq:rotY} a \ref{eq:rotZ}} \cite{HughesDamEtAl13}
+\begin{eqnarray}
+    R_x(\theta) & = & \begin{bmatrix}
+        1 & 0          & 0           \\
+        0 & \cos\theta & -\sin\theta \\
+        0 & \sin\theta & \cos\theta
+    \end{bmatrix} \label{eq:rotX} \\
+    R_y(\theta) & = & \begin{bmatrix}
+        \cos\theta  & 0 & \sin\theta \\
+        0           & 1 & 0          \\
+        -\sin\theta & 0 & \cos\theta
+    \end{bmatrix} \label{eq:rotY} \\
+    R_z(\theta) & = & \begin{bmatrix}
+        \cos\theta & -\sin\theta & 0 \\
+        \sin\theta & \cos\theta  & 0 \\
+        0          & 0           & 1
+    \end{bmatrix}\label{eq:rotZ}
+\end{eqnarray}
+Cílem pro použití se vzorkovacími funkcemi je v podstatě získání rotační matice pro převod $\uvec{up}$ vektoru na vektor normály. Po aplikaci rotační matice na vygenerované vektory vzorkovacími funkcemi je dosaženo správné orientace vzorkovaných vektorů.  Efektivní výpočet rotační matice bez použití goniometrických funkcích je definován \hyperref[eq:vectRotation]{vzorcem \ref{eq:vectRotation}} \cite{MollerHughesVectRotation}.
+\begin{equation} \label{eq:vectRotation}
+    \begin{bmatrix}
+        u_x^2 + \left ( 1 - u_x^2\right ) \cos\theta                & u_x u_y \left ( 1 - \cos \theta \right ) - y_z \sin \theta & u_x u_z + u_y \sin \theta                                  \\
+        u_x u_y \left ( 1 -  \cos \theta \right ) + u_z \sin \theta & u_y^2 + \left ( 1 - u_y^2\right ) \cos\theta               & u_y u_z \left ( 1 - \cos \theta \right ) - u_x \sin \theta \\
+        u_x u_z \left ( 1 - \cos \theta \right ) - u_y \sin \theta  & u_y u_z \left ( 1 - \cos \theta \right ) + u_x \sin \theta & u_z^2 + \left ( 1 - u_z^2\right ) \cos\theta
+    \end{bmatrix}
+\end{equation}
+Pro výpočet se používá parametr $u$, což je normalizovaný vektor kolmý na vektory $\uvec{up}$ a $\uvec{n}$. Z rovnice je také možné odstranit výpočet goniometrických funkcí, vzhledem k tomu, že platí: $\cos \theta = \uvec{up} \cdot \uvec{n}$ a $\sin \theta = |\uvec{up} \times \uvec{n}|$. Dále je možné zjednodušit výpočet pomocí substitucí \hyperref[eq:subst1]{\ref{eq:subst1}} a \hyperref[eq:subst2]{\ref{eq:subst2}} na \hyperref[eq:vectRotationSimple]{vzorec \ref{eq:vectRotationSimple}} \cite{MollerHughesVectRotation}.
+
+\begin{eqnarray} \label{eq:subst1}
+    c &=& \uvec{up} \cdot \uvec{n} \label{eq:subst1}\\
+    v &=& \uvec{up} \times \uvec{n} \nonumber\\
+    h &=& \frac{1 - c}{1 - c^2} = \frac{1 - c}{v \cdot v}\label{eq:subst2}
+\end{eqnarray}
+
+\begin{equation} \label{eq:vectRotationSimple}
+    R\left ( \uvec{up}, \uvec{n} \right) = \begin{bmatrix}
+        c + h v_x^2     & h v_x v_y - v_z & h v_x v_z + v_y \\
+        h v_x v_y + v_z & c + h v_y^2     & h v_y v_z - v_x \\
+        h v_x v_z - v_y & h v_y v_z + v_x & c + h v_z^2
+    \end{bmatrix}
+\end{equation}
 \subsection{Vzorkování směrů odražených paprsků}
 \subsection{Převod sférických souřadnic}
 Při výpočtu vzorkování se často počítá se sférickými souřadnicemi. Pro převod vektoru definovaného sférickými souřadnicemi do kartézských souřadnic je možné použít \hyperref[eq:sphericalToCartesian]{vzorec \ref{eq:sphericalToCartesian}}
@@ -327,14 +369,14 @@ Jedna z možností optimalizace je použití vzorkování hemisféry zatížené
     p = \frac{\cos\theta}{\pi}
 \end{equation}
 
-\subsection{Vzorkování Phongova BRDF}
+\subsection{Vzorkování Phongova BRDF} \label{sec:phongSampling}
 Pro vzorkování Phongova BRDF je potřeba rozhodnout, kterou část BRDF vzorkujeme - jestli difuzivní nebo odrazovou. Toto rozhodnutí je možné vytvořit náhodně, pomocí vygenerování náhodného čísla $\xi$ z intervalu $<0;k_d+k_s>$. Pokud $\xi < k_d$, je vzorkována difuzivní část. V opačném případě je vzorkována odrazová část \cite{KrivanekBRDFIBL}.
 \subsubsection{Vzorkování difuzivní části}
 Difuzivní část je možné vzorkovat pomocí \hyperref[sec:hemisphere]{hemisféry (\ref{sec:hemisphere})}. Je možné také použít hemisféru zatíženou cosinem.
 
 \subsubsection{Vzorkování odrazové části}
 Pro vzorkování odrazové části je vzorkován phongův cosinový lalok, který je vycentrován okolo $\refl$. Výpočet vzorkování odrazové části je definován \hyperref[eq:phongSpecularSample]{vzorcem \ref{eq:phongSpecularSample}} \cite{KrivanekBRDFIBL}. Rozdělení pravděpodobnost je definováno \hyperref[eq:phongSpecularSamplePdf]{vzorcem \ref{eq:phongSpecularSamplePdf}}.
-Výsledek tohoto vzorkování je vycentrován okolo normály, je tedy potřeba rotovat výsledek podél $\refl$. K rotaci vektoru je možné využít vzorec \textbf{(TODO - popsat převod z lokálního do globálního)}.
+Výsledek tohoto vzorkování je vycentrován okolo normály, je tedy potřeba rotovat výsledek podél $\refl$. K rotaci vektoru je možné využít \hyperref[eq:vectRotationSimple]{vzorec \ref{eq:vectRotationSimple}}.
 
 \begin{eqnarray}
     \theta & = & \arccos(\randU^{\frac{1}{n+1}}) \nonumber \\
