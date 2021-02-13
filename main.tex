@@ -32,6 +32,8 @@
 \newcommand{\uvec}[1]{\hat{#1}}
 \newcommand{\rough}{\sigma}
 \newcommand{\alb}{\rho}
+\newcommand{\randU}{\xi_{1}}
+\newcommand{\randV}{\xi_{2}}
 
 \pgfplotsset{compat=newest}
 
@@ -272,7 +274,6 @@ Při implementaci jsem se chtěl co nejvíce přiblížit standardním referenč
     \caption{Srovnání UV koule a geodetického mnohostěnu, z \cite{tan_2019}}
     \label{fig:spheresComparison}
 \end{figure}
-
 \begin{figure}[ht]%
     \centering
     \subfloat[Dvacetistěn \label{fig:icasehedron}]{{\includegraphics[width=5cm]{Figures/icosphere.png} }}%
@@ -285,6 +286,45 @@ Při implementaci jsem se chtěl co nejvíce přiblížit standardním referenč
     \caption{Postup generování hemisféry}%
     \label{fig:hemisfera}%
 \end{figure}
+
+
+\clearpage
+\section{Redukce variance, optimalizace Monte carlo}
+Následující kapitoly se zabývají redukcí variance při výpočtu renderovací rovnice pomocí Monte Carlo metody.
+\subsection{Vzorkování směrů odražených paprsků}
+\subsection{Převod sférických souřadnic}
+Při výpočtu vzorkování se často počítá se sférickými souřadnicemi. Pro převod vektoru definovaného sférickými souřadnicemi do kartézských souřadnic je možné použít \hyperref[eq:sphericalToCartesian]{vzorec \ref{eq:sphericalToCartesian}}
+\begin{eqnarray}
+    x & = & \sin(\theta)\cos(\phi)\nonumber \\
+    y & = & \sin(\theta)\sin(\phi)\nonumber \\
+    z & = & \cos(\theta)\label{eq:sphericalToCartesian}
+\end{eqnarray}
+
+\subsection{Vzorkování hemisféry}
+Jednou z nejjednodušších metod pro vzorkování je vzorkování hemisféry. Uniformní vzorkování hemisféry je definováno \hyperref[eq:hemisphereSampling]{vzorcem \ref{eq:hemisphereSampling}} (ve sférických souřadnicích). Rozdělení pravděpodobnosti je konstantní, definováno \hyperref[eq:hemisphereSamplingPdf]{vzorcem \ref{eq:hemisphereSamplingPdf}}. Při tomto vzorkování jsou všechny paprsky rovnoměrně rozdělené, všechny směry mají stejnou pravděpodobnost odrazu. Takové vzorkování je možné použít pro všechny BRDF funkce. Nevýhodou tohoto vzorkování je ale neoptimálnost vůči různým BRDF funkcím. Ideálně by vzorkovací funkce měla co nejpřesněji kopírovat BRDF funkci. \par
+
+\begin{eqnarray}
+    \theta & = & \arccos(\randU) \nonumber \\
+    \phi & = & 2\pi\randV \label{eq:hemisphereSampling}
+\end{eqnarray}
+
+\begin{equation} \label{eq:hemisphereSamplingPdf}
+    p = \frac{1}{2\pi}
+\end{equation}
+
+Jedna z možností optimalizace je použití vzorkování hemisféry zatížené cosinem úhlu mezi vstupním paprskem a normálou povrchu.. Základní tezí je, že paprsky s největším úhlem mají nejmenší vliv na výsledné osvětlení v daném bodě. Vzorkování by tedy mělo mít rozložení vzorků více kumulované ve směru normály oproti ostatním směrům. Jednou z možností jak generovat paprsky touto metodou je pomocí Malleyho metody. Tato metoda spočívá v generování bodu v jednotkovém disku pomocí soustředných kruhů \cite{PHARR2017747}. Výsledné souřadnice v kartézském systému se vypočítají pomocí \hyperref[eq:concentricHemisphere]{vzorce \ref{eq:concentricHemisphere}}. Pro výpočet je potřeba převést $\randU$ a $\randV$ z intervalu $<0;1>$ do intervalu $<-1;1>$  Rozdělení pravděpodobnosti je definováno \hyperref[eq:concentricHemisphere]{vzorcem \ref{eq:concentricHemispherePdf}}.
+
+\begin{eqnarray}
+    r & = & \left\{\begin{matrix*}[l] \randU & |\randU| > \left | \randV \right |\\ \randV & jinak \end{matrix*}\right. \nonumber \\
+    \Theta & = & \left\{\begin{matrix*}[l] \frac{\pi}{4}\frac{\randV}{\randU} & |\randU| > \left | \randV \right |\\ \frac{\pi}{2}-\frac{\pi}{4}\frac{\randU}{\randV} & jinak \end{matrix*}\right. \nonumber \\
+    x & = &r\cos(\Theta)\nonumber \\
+    y & = &r\sin(\Theta)\nonumber \\
+    z & = &\sqrt{ \max(0, 1 - x^2 + y^2) }\label{eq:concentricHemisphere}
+\end{eqnarray}
+
+\begin{equation} \label{eq:concentricHemispherePdf}
+    p = \frac{\cos\theta}{\pi}
+\end{equation}
 
 \printbibliography[title={Literatura}, heading=bibintoc]
 \appendix
