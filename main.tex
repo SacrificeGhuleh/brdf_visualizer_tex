@@ -34,6 +34,7 @@
 \newcommand{\alb}{\rho}
 \newcommand{\randU}{\xi_{1}}
 \newcommand{\randV}{\xi_{2}}
+\newcommand{\refl}{\omega_{r}}
 
 \pgfplotsset{compat=newest}
 
@@ -197,7 +198,7 @@ Lambertovo BRDF (Lambertovský povrch) se řadí mezi analytické modely BRDF. P
 \subsubsection{Phong} \label{sec:Phong}
 Phongovo BRDF vychází z Phongova osvětlovacího modelu, řadí se mezi analytické modely BRDF a používá se pro lesklé povrchy. Původní model je definován \hyperref[eq:phongBRDF]{vzorcem \ref{eq:phongBRDF}} \cite{Phong1975}
 \begin{equation} \label{eq:phongBRDF}
-    f_r\left(p,\omega_{out},\omega_{in}\right) = k_s(\uvec{r}\cdot\omega_{out})^n
+    f_r\left(p,\omega_{out},\omega_{in}\right) = k_s(\refl\cdot\omega_{out})^n
 \end{equation}
 
 Upravený, také často využívaný Blinn-Phong model je definován \hyperref[eq:blinnBRDF]{vzorcem \ref{eq:blinnBRDF}} \cite{BlinnPhong1977}. Výhodou upraveného Blinn-Phongova modelu oproti klasickému Phongovu modelu je hladší přechod odlesku světla.
@@ -218,9 +219,9 @@ Pro výpočet Phongova BRDF jsou využity následující parametry:
     \item[\(k_s\):] Koeficient odrazivosti materiálu
     \item[\(k_d\):] Difuzivní koeficient materiálu
     \item[\(n\):] Lesklost materiálu
-    \item[\(\uvec{r}\):] Vektor zrcadlového odrazu světla, platí: \(\uvec{r} = 2\left(\omega_{in}\cdot\uvec{n}\right)\uvec{n}-\omega_{in}\)
+    \item[\(\refl\):] Vektor zrcadlového odrazu světla, platí: \(\refl = 2\left(\omega_{in}\cdot\uvec{n}\right)\uvec{n}-\omega_{in}\)
     \item[\(\uvec{h}\):] Poloviční vektor mezi pohledovým a světelným vektorem. Platí: \(\uvec{h} = \frac{\omega_{in} + \omega_{out}}{\| \omega_{in} + \omega_{out}\|}\)
-    \item[\(\theta_r\):] Úhel odrazu, platí: \(\cos\theta_r = \omega_{out}\cdot\uvec{r}\)
+    \item[\(\theta_r\):] Úhel odrazu, platí: \(\cos\theta_r = \omega_{out}\cdot\refl\)
 \end{itemize}
 
 \subsubsection{Torrance-Sparrow} \label{sec:torrancesparrow}
@@ -300,7 +301,7 @@ Při výpočtu vzorkování se často počítá se sférickými souřadnicemi. P
     z & = & \cos(\theta)\label{eq:sphericalToCartesian}
 \end{eqnarray}
 
-\subsection{Vzorkování hemisféry}
+\subsection{Vzorkování hemisféry} \label{sec:hemisphere}
 Jednou z nejjednodušších metod pro vzorkování je vzorkování hemisféry. Uniformní vzorkování hemisféry je definováno \hyperref[eq:hemisphereSampling]{vzorcem \ref{eq:hemisphereSampling}} (ve sférických souřadnicích). Rozdělení pravděpodobnosti je konstantní, definováno \hyperref[eq:hemisphereSamplingPdf]{vzorcem \ref{eq:hemisphereSamplingPdf}}. Při tomto vzorkování jsou všechny paprsky rovnoměrně rozdělené, všechny směry mají stejnou pravděpodobnost odrazu. Takové vzorkování je možné použít pro všechny BRDF funkce. Nevýhodou tohoto vzorkování je ale neoptimálnost vůči různým BRDF funkcím. Ideálně by vzorkovací funkce měla co nejpřesněji kopírovat BRDF funkci. \par
 
 \begin{eqnarray}
@@ -326,6 +327,28 @@ Jedna z možností optimalizace je použití vzorkování hemisféry zatížené
     p = \frac{\cos\theta}{\pi}
 \end{equation}
 
+\subsection{Vzorkování Phongova BRDF}
+Pro vzorkování Phongova BRDF je potřeba rozhodnout, kterou část BRDF vzorkujeme - jestli difuzivní nebo odrazovou. Toto rozhodnutí je možné vytvořit náhodně, pomocí vygenerování náhodného čísla $\xi$ z intervalu $<0;k_d+k_s>$. Pokud $\xi < k_d$, je vzorkována difuzivní část. V opačném případě je vzorkována odrazová část \cite{KrivanekBRDFIBL}.
+\subsubsection{Vzorkování difuzivní části}
+Difuzivní část je možné vzorkovat pomocí \hyperref[sec:hemisphere]{hemisféry (\ref{sec:hemisphere})}. Je možné také použít hemisféru zatíženou cosinem.
+
+\subsubsection{Vzorkování odrazové části}
+Pro vzorkování odrazové části je vzorkován phongův cosinový lalok, který je vycentrován okolo $\refl$. Výpočet vzorkování odrazové části je definován \hyperref[eq:phongSpecularSample]{vzorcem \ref{eq:phongSpecularSample}} \cite{KrivanekBRDFIBL}. Rozdělení pravděpodobnost je definováno \hyperref[eq:phongSpecularSamplePdf]{vzorcem \ref{eq:phongSpecularSamplePdf}}.
+Výsledek tohoto vzorkování je vycentrován okolo normály, je tedy potřeba rotovat výsledek podél $\refl$. K rotaci vektoru je možné využít vzorec \textbf{(TODO - popsat převod z lokálního do globálního)}.
+
+\begin{eqnarray}
+    \theta & = & \arccos(\randU^{\frac{1}{n+1}}) \nonumber \\
+    \phi & = & 2\pi\randV\label{eq:phongSpecularSample}
+\end{eqnarray}
+
+\begin{equation} \label{eq:phongSpecularSamplePdf}
+    p = \frac{n+1}{2\pi}\cos^n\theta
+\end{equation}
+
+\subsubsection{Výsledné vzorkování}
+Po spojení vzorkování odrazové a difuzivní části je vhodné adaptovat i výpočet samotného BRDF. Při vzorkování difuzivní části je třeba jako BRDF funkci použít pouze difuzivní část Phongova BRDF, při vzorkování odrazové části je použita odrazová část Phongova BRDF. Pokud by se použilo Phongovo BRDF bez úpravy, nebylo by dosaženo snížení variance ve výsledném obrazu. \cite{KrivanekBRDFIBL}
+
 \printbibliography[title={Literatura}, heading=bibintoc]
+
 \appendix
 \end{document}
