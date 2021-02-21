@@ -152,6 +152,15 @@ Osvětlení objektů ve scéně je popsáno osvětlovacím modelem. Pokud daný 
     \label{fig:localVsGlobalIllum}%
 \end{figure}
 
+\subsection{Rendering pomocí metody sledování paprsku}
+Při renderingu pomocí klasických metod se postupuje pomocí standardního zobrazovacího řetězce. Postup je ve zkratce následující: Vrcholy tělesa jsou nahrány do GPU, následně se ve fragment shaderu aplikují transformačí matice a matice pro převod z lokálního do globálního prostoru. Následně je provedena rasterizace tělesa. Nakonec je ve fragment shaderu vypočítáno osvětlení tělesa. Standardní zobrazovací řetězec má tu výhodu, že je možné renderovat za běhu programu, v reálném čase. Nevýhodou ovšem je ztráta jisté reálnosti výstupu.\par
+Oproti tomu při použití metody sledování paprsku je scéna protnuta s pomyslnou plochou, ze které jsou potom vysílány do scény paprsky ve formě parametrických přímek. Následně se provádí traverzace ve scéně (testování, který objekt ve scéně paprsek protnul). Při protnutí tělesa je možné následně počítat další odrazy paprsků a simulovat tak šíření světla ve scéně. Výhodou použití metody sledování paprsků je možnost velmi reálných výsledků. Nevýhodou je ale vysoká výpočetní náročnost. Výpočet komplexních scén pouze pomocí metod sledování paprsků v reálném čase je komplikovaný problém. V současné době je možná hardwarová akcelerace na grafických kartách. Pro urychlení výpočtu jsou také používány hluboké neuronové sítě (např. technologie Nvidia DLSS). Je možné provádět výpočet pro nižší rozlišení a následně provést upscaling (zvýšení rozlišení). Neuronová síť je schopná dopočítat chybějící data. Výsledkem je dle Nvidia obraz svou kvalitou srovnatelný s výpočtem rovnou ve vyšším rozlišení.
+
+\subsection{Řešení renderovací rovnice pomocí metody Monte Carlo}
+
+
+
+
 
 
 
@@ -307,8 +316,9 @@ Oren-Nayar BRDF popisuje Lambertovské difusivní materiály. Oproti Lambertovu 
 \end{eqnarray}
 
 \clearpage
-\section{Vizualizace BRDF}
-Následující odstavce se zabývají konkrétními detaily implementace a technických řešení pro zobrazení BRDF funkcí.
+\section{Vizualizační aplikace}
+Následující odstavce se zabývají konkrétními detaily implementace a popisem technických řešení použitých ve vytvořené vizualizační aplikaci.
+
 
 \subsection{Generování vizualizace BRDF}
 Při implementaci jsem se chtěl co nejvíce přiblížit standardním referenčním obrázkům popisujícím princip BRDF funkcí (viz \hyperref[fig:brdf2D]{obrázek \ref{fig:brdf2D}}). Pro vizualizaci jsem se rozhodl vygenerovat jednotkovou polokouli a jednotlivé body polokoule upravit v OpenGL Vertex shaderu. Při generování polokoule jsem narazil na problém, kdy pro vizualizaci bylo potřeba mít co nejrovnoměrněji rozložené polygony, ideálně všechny s podobnou velikostí. Rozhodl jsem se tedy negenerovat UV kouli, ale geodetický mnohostěn (srovnání na \hyperref[fig:spheresComparison]{obrázku \ref{fig:spheresComparison}}), který je tvořen rovnostrannými trojúhelníky. Pro zjednodušení jsem vycházel z kódu pro dvacetistěn \cite{OpenGLSphere}, jehož trojúhelníkové stěny jsem dále rekurzivně dělil. Postup generování hemisféry použité pro vykreslení BRDF funkcí je zobrazen na \hyperref[fig:hemisfera]{obrázku \ref{fig:hemisfera}}.
