@@ -45,10 +45,27 @@ Program under project P08-TIC-03717.},
   doi     = {10.1145/965161.806819},
 }
 
+@thesis{Dutre2003GICompendum,
+  author  = {Philip Dutré},
+  title   = {Global Illumination Compendium},
+  address = {Department of Computer Science},
+  year    = {2003},
+  school  = {Katholieke Universiteit Leuven},
+  url     = {https://people.cs.kuleuven.be/~philip.dutre/GI/TotalCompendium.pdf},
+}
+
 @inproceedings{Guibas1997RobustMC,
   title  = {Robust Monte Carlo methods for light transport simulation},
   author = {L. Guibas and Eric Veach},
   year   = {1997},
+}
+
+@book{HainesRayTracingGems2019,
+  title     = {Ray Tracing Gems},
+  editor    = {Eric Haines and Tomas Akenine-M\"oller},
+  publisher = {Apress},
+  year      = {2019},
+  note      = {\url{http://raytracinggems.com}},
 }
 
 @inbook{hapke_2012,
@@ -62,7 +79,6 @@ Program under project P08-TIC-03717.},
   year      = {2012},
   pages     = {263–286},
 }
-
 @book{HughesDamEtAl13,
   abstract  = {The third edition remains the most authoritative introduction to the field. The first edition, the original 'Foley and van Dam', helped to define computer graphics and how it could be taught. The second edition became an even more comprehensive resource for practitioners and students alike. This third edition has been completely rewritten to provide detailed and up-to-date coverage of key concepts, algorithms, technologies, and applications. The authors explain the principles, as well as the mathematics, underlying computer graphics-knowledge that is essential for successful work both now and in the future. Early chapters show how to create 2D and 3D pictures right away, supporting experimentation. Later chapters, covering a broad range of topics, demonstrate more sophisticated approaches. Sections on current computer graphics practice show how to apply given principles in common situations, such as how to approximate an ideal solution on available hardware, or how to represent a data structure more efficiently. Topics are reinforced by exercises, programming problems, and hands-on projects.},
   added-at  = {2017-06-18T09:18:32.000+0200},
@@ -83,7 +99,41 @@ Program under project P08-TIC-03717.},
   year      = 2013,
 }
 
-@inbook{Koppal2014,
+
+
+@inproceedings{ImmelRenderEq,
+  author    = {Immel, David S. and Cohen, Michael F. and Greenberg, Donald P.},
+  title     = {A Radiosity Method for Non-Diffuse Environments},
+  year      = {1986},
+  isbn      = {0897911962},
+  publisher = {Association for Computing Machinery},
+  address   = {New York, NY, USA},
+  url       = {https://doi.org/10.1145/15922.15901},
+  doi       = {10.1145/15922.15901},
+  abstract  = {A general radiosity method accounting for all interreflections of light between diffuse and nondiffuse surfaces in complex environments is introduced. As contrasted with previous radiosity methods, surfaces are no longer required to be perfectly diffuse reflectors and emitters. A complete, viewer independent description of the light leaving each surface in each direction is computed, allowing dynamic sequences of images to be rendered with little additional computation per image. Phenomena such as "reflection tracking", reflections following a moving observer across a specular surface are produced. Secondary light sources, such as the light from a spotlight reflecting off a mirror onto a wall are also accounted for.},
+  booktitle = {Proceedings of the 13th Annual Conference on Computer Graphics and Interactive Techniques},
+  pages     = {133–142},
+  numpages  = {10},
+  series    = {SIGGRAPH '86},
+}
+
+ @inproceedings{KajiyaRenderEq,
+  author    = {Kajiya, James T.},
+  title     = {The Rendering Equation},
+  year      = {1986},
+  isbn      = {0897911962},
+  publisher = {Association for Computing Machinery},
+  address   = {New York, NY, USA},
+  url       = {https://doi.org/10.1145/15922.15902},
+  doi       = {10.1145/15922.15902},
+  abstract  = {We present an integral equation which generalizes a variety of known rendering algorithms. In the course of discussing a monte carlo solution we also present a new form of variance reduction, called Hierarchical sampling and give a number of elaborations shows that it may be an efficient new technique for a wide variety of monte carlo procedures. The resulting rendering algorithm extends the range of optical phenomena which can be effectively simulated.},
+  booktitle = {Proceedings of the 13th Annual Conference on Computer Graphics and Interactive Techniques},
+  pages     = {143–150},
+  numpages  = {8},
+  series    = {SIGGRAPH '86},
+} 
+ 
+ @inbook{Koppal2014,
   author    = {Koppal, Sanjeev J.},
   editor    = {Ikeuchi, Katsushi},
   title     = {Lambertian Reflectance},
@@ -95,7 +145,8 @@ Program under project P08-TIC-03717.},
   isbn      = {978-0-387-31439-6},
   doi       = {10.1007/978-0-387-31439-6_534},
   url       = {https://doi.org/10.1007/978-0-387-31439-6_534},
-}
+} 
+
 @article{KrivanekBRDFIBL,
   author   = {Jaroslav Křivánek},
   title    = {Image-Based Lighting on Surfaces with Arbitrary BRDF},
@@ -103,9 +154,7 @@ Program under project P08-TIC-03717.},
   url      = {https://cgg.mff.cuni.cz/~pepca/lectures/pdf/pg3-03-ibl-writeup.pdf},
 }
 
-
-
-@article{LaFortunePhongBRDF,
+ @article{LaFortunePhongBRDF,
   author = {Lafortune, Eric and Willems, Yves},
   year   = {1998},
   month  = {01},
@@ -113,7 +162,7 @@ Program under project P08-TIC-03717.},
   title  = {Using the Modied Phong Reflectance Model for Physically Based Rendering},
 }
 
- @article{MollerHughesVectRotation,
+@article{MollerHughesVectRotation,
   author    = { Tomas   Möller  and  John F.   Hughes },
   title     = {Efficiently Building a Matrix to Rotate One Vector to Another},
   journal   = {Journal of Graphics Tools},
@@ -131,13 +180,13 @@ Program under project P08-TIC-03717.},
         https://doi.org/10.1080/10867651.1999.10487509
     
 },
-} 
- 
- @misc{OpenGLSphere,
+}
+
+@misc{OpenGLSphere,
   url     = {http://www.songho.ca/opengl/gl_sphere.html},
   journal = {OpenGL Sphere},
   author  = {Ahn, Song Ho},
-} 
+}
 
 @inproceedings{OrenNayar,
   author    = {Oren, Michael and Nayar, Shree K.},
@@ -156,7 +205,7 @@ Program under project P08-TIC-03717.},
   series    = {SIGGRAPH '94},
 }
 
- @incollection{PHARR2017313,
+@incollection{PHARR2017313,
   title     = {05 - Color and Radiometry},
   editor    = {Matt Pharr and Wenzel Jakob and Greg Humphreys},
   booktitle = {Physically Based Rendering (Third Edition)},
@@ -185,6 +234,7 @@ Program under project P08-TIC-03717.},
   url       = {http://www.sciencedirect.com/science/article/pii/B9780128006450500087},
   author    = {Matt Pharr and Wenzel Jakob and Greg Humphreys},
 }
+
 
 @incollection{PHARR2017747,
   title     = {13 - Monte Carlo Integration},

@@ -13,6 +13,7 @@
 \usepackage{tikz}
 \usepackage{mathtools}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{bm}
 \usepackage{esvect}
 \usepackage{pgfplots}
@@ -29,12 +30,36 @@
 
 %Značení normovaného vektoru
 %\newcommand{\uvec}[1]{\boldsymbol{\hat{#1}}}
+
+\newcommand{\interval}[1]{\left[{#1}\right]}
 \newcommand{\uvec}[1]{\hat{#1}}
-\newcommand{\rough}{\sigma}
-\newcommand{\alb}{\rho}
+
+\newcommand{\point}{p}
+
+\newcommand{\brdf}{f_r\left(\point,\omega_{o},\omega_{i}\right)}
+\newcommand{\normVec}{\uvec{n}}
+\newcommand{\inVec}{\omega_{i}}
+\newcommand{\outVec}{\omega_{o}}
+\newcommand{\refl}{\omega_{r}}
+\newcommand{\halfVec}{\uvec{h}}
+
+\newcommand{\outRadiance}{L_o \left( \point,\outVec \right)}
+\newcommand{\inRadiance}{L_i \left( \point,\inVec \right)}
+\newcommand{\emitRadiance}{L_e \left( \point \right)}
+\newcommand{\irradiance}{E \left( \point, \inVec \right)}
+
+
+\newcommand{\inDotNorm}{\left( \inVec \cdot \normVec \right)}
+
 \newcommand{\randU}{\xi_{1}}
 \newcommand{\randV}{\xi_{2}}
-\newcommand{\refl}{\omega_{r}}
+
+\newcommand{\alb}{\rho}
+\newcommand{\rough}{\sigma}
+\newcommand{\ior}{f_0}
+
+\newcommand{\fromVect}{f}
+\newcommand{\toVect}{t}
 
 \pgfplotsset{compat=newest}
 
@@ -47,7 +72,7 @@
 
 \newcommand{\true}{\ding{51}}
 \newcommand{\false}{\ding{55}}
-\newcommand{\unknown}{\dots}
+\newcommand{\undecided}{\dots}
 
 % Zadame pozadovane vstupy pro generovani titulnich stran.
 \ThesisAuthor{Richard Zvonek}
@@ -83,6 +108,8 @@
 \EnglishKeywords{TODO keywords}
 
 \AddAcronym{BRDF}{bidirectional reflectance distribution function}
+\AddAcronym{IOR}{index of refraction}
+\AddAcronym{PDF}{probability density function}
 
 \addbibresource{main.bib}
 
@@ -100,22 +127,49 @@
 \section{Úvod}
 TODO
 \clearpage
-\section{Realistický rendering}
-\textit{TODO, pojmy:  realistický rendering, path tracing, renderovací rovnice, monte carlo, světlo, osvětlovací model (lokální, globální iluminace), osvětlení pomocí HDR}
+\section{Fotorealistický rendering}
+Počítačová grafika se odjakživa snaží svými výsledky co nejvěrněji přiblížit reálnému světu. Fotorealistická grafika je taková, která se tváří jako nerozeznatelná např. od fotografie. Pro fotorealismus je nutné, aby rendering (výpočet geometrie, pozice objektů a osvětlení) co nejpřesněji simuloval fyzikální principy šíření světla. V roce 1986 byl realistický rendering popsán integrální rovnicí popisující přenos světelné energie ve scéně. Renderovací rovnice byla popsána simultánně ve článcích \cite{KajiyaRenderEq} a \cite{ImmelRenderEq}. Kajiya v \cite{KajiyaRenderEq} popisuje různé možnosti řešení integrálu renderovací rovnice, mimo jiné i pomocí Monte Carlo metody, kterou pojmenoval jako path tracing \cite{HainesRayTracingGems2019}. Immel, Cohen a Greenberg v článku \cite{ImmelRenderEq} navrhují řešení renderovací rovnice pomocí metody konečných prvků, kterou pojmenovali jako metodu radiozity. V této práci se budu dále zabývat řešením renderovací rovnice pouze pomocí metody Monte Carlo. \par
+Renderovací rovnici lze vyjádřit \hyperref[eq:render]{vzorcem \ref{eq:render}}. Renderovací rovnice bez BRDF členu a bez emisivního členu vyjadřuje intenzitu záření dopadající na danou plochu (viz \hyperref[eq:renderIrradiance]{vzorec \ref{eq:renderIrradiance}})\cite{Dutre2003GICompendum}.
+
+\begin{equation} \label{eq:render}
+    \outRadiance = \emitRadiance + \int_{H \left( \point \right)}^{~}\inRadiance \brdf \inDotNorm \,d\inVec
+\end{equation}
+
+\begin{equation} \label{eq:renderIrradiance}
+    \emitRadiance = \int_{H \left( \point \right)}^{~}\inRadiance \inDotNorm \,d\inVec
+\end{equation}
+
+\subsection{Osvětlení}
+Jak už bylo zmíněno, realistický rendering se zabývá co nejpřesnější simulací šíření světla ve scéně. V reálném světě je světlo jako takové elektromagnetické záření. Viditelná část světla odpovídá zhruba intervalu $\interval{390;760}nm$ vlnové délky. Při renderingu se často pracuje pouze s geometrickou optikou. Geometrická optika zjednodučuje při šíření světla světelné paprsky na pouhé vektory, zanedbává vlastnosti vycházející z vlnové podstaty světla. Z pohledu počítačové simulace jsou světelné paprsky vyzařovány světelnými zdroji do scény. Objekty ve scéně světelné paprsky pohlcují a nebo odráží. Odraz a pohlcení světla potom definuje, jak výsledný objekt působí. \par
+Osvětlení objektů ve scéně je popsáno osvětlovacím modelem. Pokud daný osvětlovací model bere v potaz vliv na osvětlení pouze přímými zdroji světla, jedná se o lokální osvětlovací model. Pokud osvětlovací model bere v potaz i světlo odražené ostatními objekty ve scéně, které samy o sobě žádné světlo nevyzařují, jedná se o globální osvětlovací model. Rozdíl mezi osvětlením lokálním a globálním osvětlovacím modelem je patrný z \hyperref[fig:localVsGlobalIllum]{obrázku \ref{fig:localVsGlobalIllum}}.
+
+\begin{figure}[ht]%
+    \centering
+    \subfloat[Lokální osvětlovací model]{{\includegraphics[width=5cm]{Figures/cornelldirect.png} }}%
+    \qquad
+    \subfloat[Globální osvětlovací model]{{\includegraphics[width=5cm]{Figures/cornellIndirect.png} }}%
+    \caption{Srovnání osvětlovacích modelů}%
+    \label{fig:localVsGlobalIllum}%
+\end{figure}
+
+
+
+
+\textit{TODO, pojmy:  realistický rendering, path tracing, renderovací rovnice, monte carlo, světlo, osvětlovací model (lokální, globální iluminace), osvětlení pomocí HDR}.
 
 \clearpage
 \section{BRDF}
-BRDF je matematická funkce, která definuje pro daný materiál odrazivost povrchu. Určuje pro každý bod tělesa distribuci odrazu světla. Na \hyperref[fig:brdf2D]{obrázku \ref{fig:brdf2D}} je znázorněn základní princip BRDF funkce. Vektor \(\vv{n}\) je normála povrchu, \(\vv{\omega}_{in}\) značí směr ke světelnému zdroji, \(\vv{\omega}_{out}\) značí směr k pozorovateli (ke kameře). BRDF je definována pro dvojici vektorů  \(\vv{\omega}_{in}\) a \(\vv{\omega}_{out}\) v daném bodě \(p\) pomocí \hyperref[eq:brdf]{vzorce \ref{eq:brdf}}.
+BRDF je matematická funkce, která definuje pro daný materiál odrazivost povrchu. Určuje pro každý bod tělesa distribuci odrazu světla. Na \hyperref[fig:brdf2D]{obrázku \ref{fig:brdf2D}} je znázorněn základní princip BRDF funkce. Vektor \(\normVec\) je normála povrchu, \(\inVec\) značí směr ke světelnému zdroji, \(\outVec\) značí směr k pozorovateli (ke kameře). BRDF je definována pro dvojici vektorů  \(\inVec\) a \(\outVec\) v daném bodě \(p\) pomocí \hyperref[eq:brdf]{vzorce \ref{eq:brdf}}.
 % Pbrt strana 350
 
 \begin{equation} \label{eq:brdf}
-    f_r\left(p,\omega_{out},\omega_{in}\right) = \frac{dL_o\left(p, \omega_{out}\right)}{dE\left(p, \omega_{in}\right)} = \frac{dL_o\left(p, \omega_{out}\right)}{L_i\left(p, \omega_{in}\right)\cos \theta_{in}d\omega_{in}}
+    \brdf = \frac{d\outRadiance}{d\irradiance} = \frac{d\outRadiance}{\inRadiance \inDotNorm d\inVec}
 \end{equation}
 
 Je žádoucí, aby BRDF funkce splňovaly některá základní pravidla. Je důležitá  fyzikální přesnost BRDF funkce, pro kterou musí být musí být splněny následující podmínky \cite{PHARR2017313}:
 \begin{enumerate}
     % 10.3 Reciprocity 
-    \item Princip vzájemnosti (Helmholtzův princip reciprocity, \cite{hapke_2012}) - Pro všechny dvojice \(\vv{\omega}_{in}\) a \(\vv{\omega}_{out}\) platí: \(f_r\left(p,\omega_{out},\omega_{in}\right) = f_r\left(p,\omega_{in},\omega_{out}\right)\)
+    \item Princip vzájemnosti (Helmholtzův princip reciprocity, \cite{hapke_2012}) - Pro všechny dvojice \(\inVec\) a \(\outVec\) platí: \(\brdf = f_r\left(p,\inVec,\outVec\right)\)
     \item Princip zachování energie - Celková energie odraženého světla nemůže být vyšší, než energie vstupního světla
     \item BRDF musí mít vždy nezáporný výsledek
 \end{enumerate}
@@ -129,20 +183,20 @@ Je žádoucí, aby BRDF funkce splňovaly některá základní pravidla. Je důl
         \draw (-4,0) arc (180:0:4 and 4);
 
         \draw [thick, ->] (0,0) -- ++(-5,0) node [at end, above] () {\(\vv{t}\)};
-        \draw [thick, ->] (0,0) -- ++(135:5cm) node [at end, above] () {\(\vv{\omega}_{out}\)};
+        \draw [thick, ->] (0,0) -- ++(135:5cm) node [at end, above] () {\(\outVec\)};
         % y
-        \draw [thick, thick, ->] (0,0) -- ++(0,5) node [at end, above] () {\(\vv{n}\)};
+        \draw [thick, thick, ->] (0,0) -- ++(0,5) node [at end, above] () {\(\normVec\)};
         % z
         \draw [thick, ->] (0,0,0) -- ++(0,-2.5,-2.5) node [at end, above] () {\(\vv{b}\)};
         % lines spanning angle alpha
-        \draw [thick, ->] (0,0) -- ++(45:5cm) node [at end, above] () {\(\vv{\omega}_{in}\)};
+        \draw [thick, ->] (0,0) -- ++(45:5cm) node [at end, above] () {\(\inVec\)};
 
         \draw [thin, dashed] (0,0) -- ++(55:3cm);
         \draw [thin, dashed] (0,0) -- ++(35:3cm);
 
         \draw[thin, dashed, rotate=45] (3,0) ellipse (0.25cm and 0.5cm);
 
-        \draw [thin, <->] (0,0) ++(90:1.5cm) arc (90:45:1.5cm) node [midway, above] () {\(\theta_{in}\)};
+        \draw [thin, <->] (0,0) ++(90:1.5cm) arc (90:45:1.5cm) node [midway, above] () {\(\theta_i \)};
 
         \draw [thin, dashed] (1.5,1.5) -- ++(0,-2);
         \draw [thin, dashed] (0,0) -- ++(1.5,-0.5);
@@ -150,11 +204,11 @@ Je žádoucí, aby BRDF funkce splňovaly některá základní pravidla. Je důl
         \draw [thin, dashed] (-2,2) -- ++(0,-2.53);
         \draw [thin, dashed] (0,0) -- ++(-2,-0.5);
 
-        \draw [thin, <->] (0,0) ++(180:2.1cm) arc (185:205:1.5cm) node [midway, left] () {\(\phi_{out}\)};
+        \draw [thin, <->] (0,0) ++(180:2.1cm) arc (185:205:1.5cm) node [midway, left] () {\(\phi_o\)};
 
-        \draw [thin, <->] (0,0) ++(180:1.7cm) arc (185:326:1.5cm and 0.75cm) node [midway, left] () {\(\phi_{in}\)};
+        \draw [thin, <->] (0,0) ++(180:1.7cm) arc (185:326:1.5cm and 0.75cm) node [midway, left] () {\(\phi_i \)};
 
-        \draw [thin, <->] (0,0) ++(90:2cm) arc (90:135:2cm) node [midway, above] () {\(\theta_{out}\)};
+        \draw [thin, <->] (0,0) ++(90:2cm) arc (90:135:2cm) node [midway, above] () {\(\theta_o\)};
 
 
         \draw (-0.05,-0.3) node () {\(p\)};
@@ -175,10 +229,10 @@ Pro rychlý přehled vlastností jednotlivých BRDF funkcí je možné využít 
         \hline
         Ideal reflection    & \true                    & \true                     & \false                      & \false                      & \true                    & \(x\)                              & Mirror, perfect spec.         \\
         Lambert             & \true                    & \true                     & \false                      & \false                      & \true                    & \(x\)                              & Perfect diffuse               \\
-        Phong               & \false                   & \false                    & \false                      & \false                      & \true                    & \unknown                           & Rough surf.                   \\
+        Phong               & \false                   & \false                    & \false                      & \false                      & \true                    & \undecided                         & Rough surf.                   \\
         Blinn-Phong         & \false                   & \false                    & \false                      & \false                      & \true                    & \(9.18x\)                          & Rough surf.                   \\
-        Phys. correct Phong & \false                   & \true                     & \false                      & \false                      & \true                    & \unknown                           & Rough surf.                   \\
-        Torrance-Sparrow    & \true                    & \false                    & \true                       & \true                       & \false                   & \unknown                           & Rough surf.                   \\
+        Phys. correct Phong & \false                   & \true                     & \false                      & \false                      & \true                    & \undecided                         & Rough surf.                   \\
+        Torrance-Sparrow    & \true                    & \false                    & \true                       & \true                       & \false                   & \undecided                         & Rough surf.                   \\
         Cook-Torrance       & \true                    & \true                     & \true                       & \false                      & \false                   & \(16.9x\)                          & Metal, plastic                \\
         Oren-Nayar          & \true                    & \true                     & \false                      & \false                      & \true                    & \(10.98x\)                         & Matte, dirty                  \\
         \hline
@@ -191,38 +245,28 @@ Pro rychlý přehled vlastností jednotlivých BRDF funkcí je možné využít 
 Lambertovo BRDF (Lambertovský povrch) se řadí mezi analytické modely BRDF. Popisuje ideálně matné povrchy, které odráží příchozí světlo do všech směrů rovnoměrně se stejnou pravděpodobností, nehledě na příchozí směr paprsku. Jedná se o nejjednodušší BRDF funkci, je definována \hyperref[eq:lambertBRDF]{vztahem \ref{eq:lambertBRDF}} \cite{Koppal2014}.
 %COmputer vision reference guide katushi, page 675 - Lambertian Reflectance
 \begin{equation} \label{eq:lambertBRDF}
-    f_r\left(p,\omega_{out},\omega_{in}\right) = \frac{\alb}{\pi} = konst.
+    \brdf = \frac{\alb}{\pi} = konst.
 \end{equation}
 \(\alb\) ve \hyperref[eq:lambertBRDF]{vztahu \ref{eq:lambertBRDF}} vyjadřuje poměr mezi pohlceným a odraženým světlem. Tato veličina je také odborně nazývána pojmem albedo. Dělení konstantou \(\pi\) zajišťuje platnost zákona zachování energie. Díky nezávislosti na směru vstupního paprsku je také splněna reciprocita.
 
 \subsubsection{Phong} \label{sec:Phong}
 Phongovo BRDF vychází z Phongova osvětlovacího modelu, řadí se mezi analytické modely BRDF a používá se pro lesklé povrchy. Původní model je definován \hyperref[eq:phongBRDF]{vzorcem \ref{eq:phongBRDF}} \cite{Phong1975}
 \begin{equation} \label{eq:phongBRDF}
-    f_r\left(p,\omega_{out},\omega_{in}\right) = k_s(\refl\cdot\omega_{out})^n
+    \brdf = k_s(\refl\cdot\outVec)^n
 \end{equation}
 
 Upravený, také často využívaný Blinn-Phong model je definován \hyperref[eq:blinnBRDF]{vzorcem \ref{eq:blinnBRDF}} \cite{BlinnPhong1977}. Výhodou upraveného Blinn-Phongova modelu oproti klasickému Phongovu modelu je hladší přechod odlesku světla.
 
 \begin{equation} \label{eq:blinnBRDF}
-    f_r\left(p,\omega_{out},\omega_{in}\right) = k_s(\uvec{n}\cdot\uvec{h})^n
+    \brdf = k_s(\normVec\cdot\halfVec)^n
 \end{equation}
 
 Jak Phong, tak Blinn-Phong modely nejsou fyzikálně přesné - nesplňují zákon zachování energie, ani zákon reciprocity \cite{BRDFOverview}. Phongovo BRDF je možné dále upravit, aby byly splněny pravidla pro fyzikální korektnost. Fyzikálně korektní Phongovo BRDF je definováno \hyperref[eq:phongPhysicalBRDF]{vzorcem \ref{eq:phongPhysicalBRDF}}. Pro fyzikální korektnost této varianty Phongova BRDF je potřeba dodržet \(k_d + k_s \leq 1\) \cite{LaFortunePhongBRDF}.
 
 \begin{equation} \label{eq:phongPhysicalBRDF}
-    f_r\left(p,\omega_{out},\omega_{in}\right) = \frac{k_d}{\pi} +
+    \brdf = \frac{k_d}{\pi} +
     \frac{k_s\left(n+2\right)}{2\pi}\left(\cos\theta_r\right)^n
 \end{equation}
-
-Pro výpočet Phongova BRDF jsou využity následující parametry:
-\begin{itemize}
-    \item[\(k_s\):] Koeficient odrazivosti materiálu
-    \item[\(k_d\):] Difuzivní koeficient materiálu
-    \item[\(n\):] Lesklost materiálu
-    \item[\(\refl\):] Vektor zrcadlového odrazu světla, platí: \(\refl = 2\left(\omega_{in}\cdot\uvec{n}\right)\uvec{n}-\omega_{in}\)
-    \item[\(\uvec{h}\):] Poloviční vektor mezi pohledovým a světelným vektorem. Platí: \(\uvec{h} = \frac{\omega_{in} + \omega_{out}}{\| \omega_{in} + \omega_{out}\|}\)
-    \item[\(\theta_r\):] Úhel odrazu, platí: \(\cos\theta_r = \omega_{out}\cdot\refl\)
-\end{itemize}
 
 \subsubsection{Torrance-Sparrow} \label{sec:torrancesparrow}
 Torrance-Sparrow BRDF patří mezi fyzikální modely a je považován za jeden s nejúplnějších modelů \cite{BRDFOverview}. Mimo jiné je např. schopen simulovat odlesk polarizovaného světla. Tento model simuluje mikroploškové materiály a pomocí parametru roughness (drsnost) simuluje mikroskopické nerovnosti materiálu. Orientace mikroskopických nerovností je v materiálu náhodná. Vyšší hodnota drsnosti materiálu snižuje lesklost materiálu. Torrance-Sparrow brdf funkce je definována \hyperref[eq:TorranceSparrow]{vzorcem \ref{eq:TorranceSparrow}}. \par
@@ -232,17 +276,17 @@ Poslední část pro výpočet je koeficient geometrického útlumu \(G\), kter�
 
 
 \begin{eqnarray}
-    f_r\left(p,\omega_{out},\omega_{in}\right) & = & \frac{k_d}{\pi} + \frac{k_s D(h,m) F(\omega_{out}) G(\omega_{out},\omega_{in})}{4\pi (\uvec{n}\cdot \omega_{in})}\label{eq:TorranceSparrow}\\
-    D(h,m) & = & \frac{e^{\left(\frac{(\uvec{n}\cdot \uvec{h})^2-1}{m^2(\uvec{n}\cdot \uvec{h})^2}\right)}}{m^2(\uvec{n}\cdot \uvec{h})^2}\label{eq:beckDistr}\\
-    F(\omega_{out}) & \approx & R(\theta) = f_0 + (1-f_0)(1-\cos\theta)^5\label{eq:schlickFresnel}\\
-    G(\omega_{out},\omega_{in}) & = & min \left( 1, \frac{2 ( \uvec{n} \cdot \uvec{h} ) ( \uvec{n} \cdot \omega_{out} )
-        }{ ( \omega_{out} \cdot \uvec{h} ) },\frac{ 2 ( \uvec{n} \cdot \uvec{h} ) ( \uvec{n} \cdot \omega_{in} ) }{ ( \omega_{out} \cdot \uvec{h} ) } \right) \label{eq:geomAtatenuation}
+    \brdf & = & \frac{k_d}{\pi} + \frac{k_s D(\halfVec,\rough) F(\outVec) G(\outVec,\inVec)}{4\pi (\normVec \cdot \inVec)}\label{eq:TorranceSparrow}\\
+    D(\halfVec,\rough) & = & \frac{e^{\left(\frac{(\normVec\cdot \halfVec)^2-1}{\rough^2(\normVec \cdot \halfVec)^2}\right)}}{\rough^2(\normVec\cdot \halfVec)^2}\label{eq:beckDistr}\\
+    F(\outVec) & \approx & R(\theta) = \ior + (1-\ior)(1-\cos\theta)^5\label{eq:schlickFresnel}\\
+    G(\outVec,\inVec) & = & \min \left( 1, \frac{2 ( \normVec \cdot \halfVec ) ( \normVec \cdot \outVec )
+        }{ ( \outVec \cdot \halfVec ) },\frac{ 2 ( \normVec \cdot \halfVec ) ( \normVec \cdot \inVec ) }{ ( \outVec \cdot \halfVec ) } \right) \label{eq:geomAtatenuation}
 \end{eqnarray}
 \subsubsection{Cook-Torrance}
-Cook-Torrance BRDF rozšiřuje mikroploškové BRDF s myšlenkou, že pouze mikroplošky orientované podél vektoru \(\uvec{h}\) mají vliv na výsledném odrazu světla. Odrazová složka výsledného obrazu využívá pro výpočet opět funkce \(F, D, G\) (viz \hyperref[sec:torrancesparrow]{\ref{sec:torrancesparrow} Torrance-Sparrow}). Cook-Torrance BRDF se vypočítá podle \hyperref[eq:CookTorrance]{vzorce \ref{eq:CookTorrance}} \cite{CookTorranceBRDF}. Nevýhodou této BRDF funkce je nesplnění fyzikální přesnosti z důvodu nesplnění zákona zachování energie pro některé úhly \(\omega_{out},\omega_{in}\) \cite{BRDFOverview}.
+Cook-Torrance BRDF rozšiřuje mikroploškové BRDF s myšlenkou, že pouze mikroplošky orientované podél vektoru \(\halfVec\) mají vliv na výsledném odrazu světla. Odrazová složka výsledného obrazu využívá pro výpočet opět funkce \(F, D, G\) (viz \hyperref[sec:torrancesparrow]{\ref{sec:torrancesparrow} Torrance-Sparrow}). Cook-Torrance BRDF se vypočítá podle \hyperref[eq:CookTorrance]{vzorce \ref{eq:CookTorrance}} \cite{CookTorranceBRDF}. Nevýhodou této BRDF funkce je nesplnění fyzikální přesnosti z důvodu nesplnění zákona zachování energie pro některé \(\left(\outVec,\inVec\right)\) \cite{BRDFOverview}.
 
 \begin{equation} \label{eq:CookTorrance}
-    f_r\left(p,\omega_{out},\omega_{in}\right)  = \frac{F(\omega_{out})}{\pi} \frac{D(h,m)}{(\uvec{n}\cdot\omega_{in})} \frac{G(\omega_{out},\omega_{in})}{(\uvec{n}\cdot\omega_{out})}
+    \brdf  = \frac{F(\outVec)}{\pi} \frac{D(\halfVec,\rough)}{(\normVec\cdot\inVec)} \frac{G(\outVec,\inVec)}{(\normVec\cdot\outVec)}
 \end{equation}
 
 \subsubsection{Oren-Nayar}
@@ -251,15 +295,15 @@ Oren-Nayar BRDF popisuje Lambertovské difusivní materiály. Oproti Lambertovu 
 \newcommand{\cosphiri}{\cos\left(\phi_r-\phi_i\right)}
 
 \begin{eqnarray}
-    \alpha & = & max(\theta_{in}, \theta_{out}) = max(\arccos(\uvec{n}\cdot\omega_{in}), \arccos(\uvec{n}\cdot\omega_{out})) \nonumber \\
-    \beta & = & min(\theta_{in}, \theta_{out}) = min(\arccos(\uvec{n}\cdot\omega_{in}), \arccos(\uvec{n}\cdot\omega_{out})) \nonumber \\
-    \cosphiri & = & \widehat{\left( \omega_{in} - \uvec{n}(\uvec{n}\cdot\omega_{in}) \right)} \cdot \widehat{\left( \omega_{out} - \uvec{n}(\uvec{n}\cdot\omega_{out})  \right)} \nonumber \\
+    \alpha & = & \max(\theta_i , \theta_o) = \max(\arccos(\normVec\cdot\inVec), \arccos(\normVec\cdot\outVec)) \nonumber \\
+    \beta & = & \min(\theta_i , \theta_o) = \min(\arccos(\normVec\cdot\inVec), \arccos(\normVec\cdot\outVec)) \nonumber \\
+    \cosphiri & = & \widehat{\left( \inVec - \normVec(\normVec\cdot\inVec) \right)} \cdot \widehat{\left( \outVec - \normVec(\normVec\cdot\outVec)  \right)} \nonumber \\
     C_1 & = & 1-0.5\frac{\rough^2}{\rough^2 + 0.33} \nonumber \\
     C_2 & = & \left\{\begin{matrix*}[l] 0.45\frac{\rough^2}{\rough^2+0.09}\sin\alpha & \cosphiri \geq 0\\ 0.45\frac{\rough^2}{\rough^2+0.09}\left(\sin\alpha-\left(\frac{2\beta}{\pi}\right)^3\right) & jinak \end{matrix*}\right. \nonumber \\
     C_3 & = & 0.125\left(\frac{\rough^2}{\rough^2 + 0.009}\right)\left(\frac{4\alpha\beta}{\pi^2}\right)^2 \nonumber \\
     L^{1}_{r} & = & \frac{\alb}{\pi}\left[C_1 + \cosphiri C_2\tan\beta + \left( 1-\left | \cosphiri  \right | \right)C_3\tan \left(\frac{\alpha+\beta}{2}\right)\right] \nonumber \\
     L^{2}_{r} & = & 0.17\frac{\alb^2}{\pi}\frac{\rough^2}{\rough^2+0.13}\left[1 - \cosphiri  \left(\frac{2\beta}{\pi}\right)^2 \right] \nonumber \\
-    f_r\left(p,\omega_{out},\omega_{in}\right) & = & L^{1}_{r} + L^{2}_{r} \label{eq:OrenNayar}
+    \brdf & = & L^{1}_{r} + L^{2}_{r} \label{eq:OrenNayar}
 \end{eqnarray}
 
 \clearpage
@@ -288,12 +332,11 @@ Při implementaci jsem se chtěl co nejvíce přiblížit standardním referenč
     \label{fig:hemisfera}%
 \end{figure}
 
-
 \clearpage
-\section{Redukce variance, optimalizace Monte carlo}
-Následující kapitoly se zabývají redukcí variance při výpočtu renderovací rovnice pomocí Monte Carlo metody.
+\section{Vybrané matematické funkce}
+
 \subsection{Převod vektoru z lokálního do globálního prostoru}
-V následujících kapitolách jsou popsány metody generování vzorků vektorů používaných pro výpočet odrazu světla. Problémem ale je, že tyto generované vektory nejsou orientovány podél normály. Generované vektory jsou typicky orientovány podle $\uvec{up}$ vektoru (vektor určující ve scéně osu směrem nahoru). Pro použití s libovolnou normálou je tedy nutné výsledný vektor vygenerované vzorkovací funkcí orotovat podél normálového vektoru. Tato funkce má také využití např. při generování vzorků pro odrazovou složku Phongova BRDF (viz \hyperref[sec:phongSampling]{\ref{sec:phongSampling} Vzorkování Phongova BRDF}). Vzhledem k tomu, že vzorkovací funkce samotná je při renderingu volána velmi často, je vhodné mít všechny kroky vzorkování co nejlépe optimalizované. Jednou z nejlepších metod pro rotaci vektrou je použití transformační matice. Pro rotaci ve 3D prostoru se využívá trojice elementárních rotačních matic, definovaných \hyperref[eq:rotX]{vzorci \ref{eq:rotX}, \ref{eq:rotY} a \ref{eq:rotZ}} \cite{HughesDamEtAl13}
+V následujících kapitole \hyperref[sec:reduction]{\ref{sec:reduction} Redukce variance, optimalizace Monte carlo} jsou popsány metody generování vzorků vektorů používaných pro výpočet odrazu světla. Problémem ale je, že tyto generované vektory nejsou orientovány podél normály. Generované vektory jsou typicky orientovány podle $\uvec{up}$ vektoru (vektor určující ve scéně osu směrem nahoru). Pro použití s libovolnou normálou je tedy nutné výsledný vektor vygenerované vzorkovací funkcí orotovat podél normálového vektoru. Tato funkce má také využití např. při generování vzorků pro odrazovou složku Phongova BRDF (viz \hyperref[sec:phongSampling]{\ref{sec:phongSampling} Vzorkování Phongova BRDF}). Vzhledem k tomu, že vzorkovací funkce samotná je při renderingu volána velmi často, je vhodné mít všechny kroky vzorkování co nejlépe optimalizované. Jednou z nejlepších metod pro rotaci vektrou je použití transformační matice. Pro rotaci ve 3D prostoru se využívá trojice elementárních rotačních matic, definovaných \hyperref[eq:rotX]{vzorci \ref{eq:rotX}, \ref{eq:rotY} a \ref{eq:rotZ}} \cite{HughesDamEtAl13}\par
 \begin{eqnarray}
     R_x(\theta) & = & \begin{bmatrix}
         1 & 0          & 0           \\
@@ -311,7 +354,7 @@ V následujících kapitolách jsou popsány metody generování vzorků vektor�
         0          & 0           & 1
     \end{bmatrix}\label{eq:rotZ}
 \end{eqnarray}
-Cílem pro použití se vzorkovacími funkcemi je v podstatě získání rotační matice pro převod $\uvec{up}$ vektoru na vektor normály. Po aplikaci rotační matice na vygenerované vektory vzorkovacími funkcemi je dosaženo správné orientace vzorkovaných vektorů.  Efektivní výpočet rotační matice bez použití goniometrických funkcích je definován \hyperref[eq:vectRotation]{vzorcem \ref{eq:vectRotation}} \cite{MollerHughesVectRotation}.
+Cílem je získání rotační matice pro rotaci vektoru $\fromVect$ na vektor $\toVect$. Po aplikaci rotační matice na vygenerované vektory vzorkovacími funkcemi je dosaženo správné orientace vzorkovaných vektorů.  Efektivní výpočet rotační matice bez použití goniometrických funkcích je definován \hyperref[eq:vectRotation]{vzorcem \ref{eq:vectRotation}} \cite{MollerHughesVectRotation}.
 \begin{equation} \label{eq:vectRotation}
     \begin{bmatrix}
         u_x^2 + \left ( 1 - u_x^2\right ) \cos\theta                & u_x u_y \left ( 1 - \cos \theta \right ) - y_z \sin \theta & u_x u_z + u_y \sin \theta                                  \\
@@ -319,22 +362,22 @@ Cílem pro použití se vzorkovacími funkcemi je v podstatě získání rotačn
         u_x u_z \left ( 1 - \cos \theta \right ) - u_y \sin \theta  & u_y u_z \left ( 1 - \cos \theta \right ) + u_x \sin \theta & u_z^2 + \left ( 1 - u_z^2\right ) \cos\theta
     \end{bmatrix}
 \end{equation}
-Pro výpočet se používá parametr $u$, což je normalizovaný vektor kolmý na vektory $\uvec{up}$ a $\uvec{n}$. Z rovnice je také možné odstranit výpočet goniometrických funkcí, vzhledem k tomu, že platí: $\cos \theta = \uvec{up} \cdot \uvec{n}$ a $\sin \theta = |\uvec{up} \times \uvec{n}|$. Dále je možné zjednodušit výpočet pomocí substitucí \hyperref[eq:subst1]{\ref{eq:subst1}} a \hyperref[eq:subst2]{\ref{eq:subst2}} na \hyperref[eq:vectRotationSimple]{vzorec \ref{eq:vectRotationSimple}} \cite{MollerHughesVectRotation}.
+Pro výpočet se používá parametr $u$, což je normalizovaný vektor kolmý na vektory $\fromVect$ a $\toVect$. Z rovnice je také možné odstranit výpočet goniometrických funkcí, vzhledem k tomu, že platí: $\cos \theta = \fromVect \cdot \toVect$ a $\sin \theta = \left\Vert \fromVect \times \toVect \right\Vert$. Dále je možné zjednodušit výpočet pomocí substitucí \hyperref[eq:subst1]{\ref{eq:subst1}} a \hyperref[eq:subst2]{\ref{eq:subst2}} na \hyperref[eq:vectRotationSimple]{vzorec \ref{eq:vectRotationSimple}} \cite{MollerHughesVectRotation}.
 
 \begin{eqnarray} \label{eq:subst1}
-    c &=& \uvec{up} \cdot \uvec{n} \label{eq:subst1}\\
-    v &=& \uvec{up} \times \uvec{n} \nonumber\\
+    c &=& \fromVect \cdot \toVect \label{eq:subst2}\\
+    v &=& \fromVect \times \toVect \nonumber\\
     h &=& \frac{1 - c}{1 - c^2} = \frac{1 - c}{v \cdot v}\label{eq:subst2}
 \end{eqnarray}
 
 \begin{equation} \label{eq:vectRotationSimple}
-    R\left ( \uvec{up}, \uvec{n} \right) = \begin{bmatrix}
+    R\left ( \fromVect, \toVect \right) = \begin{bmatrix}
         c + h v_x^2     & h v_x v_y - v_z & h v_x v_z + v_y \\
         h v_x v_y + v_z & c + h v_y^2     & h v_y v_z - v_x \\
         h v_x v_z - v_y & h v_y v_z + v_x & c + h v_z^2
     \end{bmatrix}
 \end{equation}
-\subsection{Vzorkování směrů odražených paprsků}
+
 \subsection{Převod sférických souřadnic}
 Při výpočtu vzorkování se často počítá se sférickými souřadnicemi. Pro převod vektoru definovaného sférickými souřadnicemi do kartézských souřadnic je možné použít \hyperref[eq:sphericalToCartesian]{vzorec \ref{eq:sphericalToCartesian}}
 \begin{eqnarray}
@@ -342,6 +385,18 @@ Při výpočtu vzorkování se často počítá se sférickými souřadnicemi. P
     y & = & \sin(\theta)\sin(\phi)\nonumber \\
     z & = & \cos(\theta)\label{eq:sphericalToCartesian}
 \end{eqnarray}
+Zpětný převod normalizovaného vektoru z kartézských souřadnic je také možný, pomocí \hyperref[eq:cartesianToSpherical]{vzorce \ref{eq:cartesianToSpherical}}
+
+\begin{eqnarray}
+    \theta & = & \arctan \frac{\sqrt{x^2 + y^2}}{z} \nonumber \\
+    \phi & = & \arctan \frac{y}{x}\label{eq:cartesianToSpherical}
+\end{eqnarray}
+
+\clearpage
+\section{Redukce variance, optimalizace Monte carlo} \label{sec:reduction}
+Následující kapitoly se zabývají redukcí variance při výpočtu renderovací rovnice pomocí Monte Carlo metody.
+
+\subsection{Vzorkování směrů odražených paprsků}
 
 \subsection{Vzorkování hemisféry} \label{sec:hemisphere}
 Jednou z nejjednodušších metod pro vzorkování je vzorkování hemisféry. Uniformní vzorkování hemisféry je definováno \hyperref[eq:hemisphereSampling]{vzorcem \ref{eq:hemisphereSampling}} (ve sférických souřadnicích). Rozdělení pravděpodobnosti je konstantní, definováno \hyperref[eq:hemisphereSamplingPdf]{vzorcem \ref{eq:hemisphereSamplingPdf}}. Při tomto vzorkování jsou všechny paprsky rovnoměrně rozdělené, všechny směry mají stejnou pravděpodobnost odrazu. Takové vzorkování je možné použít pro všechny BRDF funkce. Nevýhodou tohoto vzorkování je ale neoptimálnost vůči různým BRDF funkcím. Ideálně by vzorkovací funkce měla co nejpřesněji kopírovat BRDF funkci. \par
@@ -355,7 +410,7 @@ Jednou z nejjednodušších metod pro vzorkování je vzorkování hemisféry. U
     p = \frac{1}{2\pi}
 \end{equation}
 
-Jedna z možností optimalizace je použití vzorkování hemisféry zatížené cosinem úhlu mezi vstupním paprskem a normálou povrchu.. Základní tezí je, že paprsky s největším úhlem mají nejmenší vliv na výsledné osvětlení v daném bodě. Vzorkování by tedy mělo mít rozložení vzorků více kumulované ve směru normály oproti ostatním směrům. Jednou z možností jak generovat paprsky touto metodou je pomocí Malleyho metody. Tato metoda spočívá v generování bodu v jednotkovém disku pomocí soustředných kruhů \cite{PHARR2017747}. Výsledné souřadnice v kartézském systému se vypočítají pomocí \hyperref[eq:concentricHemisphere]{vzorce \ref{eq:concentricHemisphere}}. Pro výpočet je potřeba převést $\randU$ a $\randV$ z intervalu $<0;1>$ do intervalu $<-1;1>$  Rozdělení pravděpodobnosti je definováno \hyperref[eq:concentricHemisphere]{vzorcem \ref{eq:concentricHemispherePdf}}.
+Jedna z možností optimalizace je použití vzorkování hemisféry závislém na cosinu úhlu mezi vstupním paprskem a normálou povrchu. Základní tezí je, že paprsky s největším úhlem mají nejmenší vliv na výsledné osvětlení v daném bodě. Vzorkování by tedy mělo mít rozložení vzorků více kumulované ve směru normály oproti ostatním směrům. Jednou z možností jak generovat paprsky touto metodou je pomocí Malleyho metody. Tato metoda spočívá v generování bodu v jednotkovém disku pomocí soustředných kruhů \cite{PHARR2017747}. Výsledné souřadnice v kartézském systému se vypočítají pomocí \hyperref[eq:concentricHemisphere]{vzorce \ref{eq:concentricHemisphere}}. Pro výpočet je potřeba převést $\randU$ a $\randV$ z intervalu $\interval{0;1}$ do intervalu $\interval{-1;1}$  Rozdělení pravděpodobnosti je definováno \hyperref[eq:concentricHemisphere]{vzorcem \ref{eq:concentricHemispherePdf}}.
 
 \begin{eqnarray}
     r & = & \left\{\begin{matrix*}[l] \randU & |\randU| > \left | \randV \right |\\ \randV & jinak \end{matrix*}\right. \nonumber \\
@@ -370,9 +425,9 @@ Jedna z možností optimalizace je použití vzorkování hemisféry zatížené
 \end{equation}
 
 \subsection{Vzorkování Phongova BRDF} \label{sec:phongSampling}
-Pro vzorkování Phongova BRDF je potřeba rozhodnout, kterou část BRDF vzorkujeme - jestli difuzivní nebo odrazovou. Toto rozhodnutí je možné vytvořit náhodně, pomocí vygenerování náhodného čísla $\xi$ z intervalu $<0;k_d+k_s>$. Pokud $\xi < k_d$, je vzorkována difuzivní část. V opačném případě je vzorkována odrazová část \cite{KrivanekBRDFIBL}.
+Pro vzorkování Phongova BRDF je potřeba rozhodnout, kterou část BRDF vzorkujeme - jestli difuzivní nebo odrazovou. Toto rozhodnutí je možné vytvořit náhodně, pomocí vygenerování náhodného čísla $\xi$ z intervalu $\interval{0;k_d+k_s}$. Pokud $\xi < k_d$, je vzorkována difuzivní část. V opačném případě je vzorkována odrazová část \cite{KrivanekBRDFIBL}.
 \subsubsection{Vzorkování difuzivní části}
-Difuzivní část je možné vzorkovat pomocí \hyperref[sec:hemisphere]{hemisféry (\ref{sec:hemisphere})}. Je možné také použít hemisféru zatíženou cosinem.
+Difuzivní část je možné vzorkovat pomocí \hyperref[sec:hemisphere]{hemisféry (\ref{sec:hemisphere})}. Je možné také použít hemisféru závislou na cosinu úhlu mezi vstupním paprskem a normálou povrchu.
 
 \subsubsection{Vzorkování odrazové části}
 Pro vzorkování odrazové části je vzorkován phongův cosinový lalok, který je vycentrován okolo $\refl$. Výpočet vzorkování odrazové části je definován \hyperref[eq:phongSpecularSample]{vzorcem \ref{eq:phongSpecularSample}} \cite{KrivanekBRDFIBL}. Rozdělení pravděpodobnost je definováno \hyperref[eq:phongSpecularSamplePdf]{vzorcem \ref{eq:phongSpecularSamplePdf}}.
@@ -393,4 +448,42 @@ Po spojení vzorkování odrazové a difuzivní části je vhodné adaptovat i v
 \printbibliography[title={Literatura}, heading=bibintoc]
 
 \appendix
+\section{Užité symboly}
+
+\subsection{Obecné}
+
+\begin{itemize}
+    \item[\(\outRadiance\):] Výsledná zář vyzařovaná z daného bodu
+    \item[\(\emitRadiance\):] Zář, pasivně vyzařovaná z objektu v daném bodě
+    \item[\(\inRadiance\):] Zář dopadající na daný bod
+    \item[\(\irradiance\):] Celková žář dopadající na daný bod
+    \item[\(\brdf\):] BRDF funkce
+    \item[\(\left(\theta,\phi\right)\):] Vektor definovaný sférickými souřadnicemi
+    \item[\(\left(x,y,z\right)\):] Vektor definovaný kartézskými souřadnicemi
+    \item[\(\normVec\):] Vektor normály povrchu
+    \item[\(\inVec\):] Vektor ve směru ke světelnému zdroji. Platí: \(\inVec = \left(\theta_i,\phi_i\right)\)
+    \item[\(\outVec\):] Vektor ve směru k pozorovateli. Platí: \(\outVec = \left(\theta_o,\phi_o\right)\)
+    \item[\(\refl\):] Vektor zrcadlového odrazu světla, platí: \(\refl = 2\left(\inVec\cdot\normVec\right)\normVec-\inVec\)
+    \item[\(\halfVec\):] Poloviční vektor mezi pohledovým a světelným vektorem. Platí: \(\halfVec = \frac{\inVec + \outVec}{\| \inVec + \outVec\|}\)
+    \item[\(\theta_r\):] Úhel odrazu, platí: \(\cos\theta_r = \outVec\cdot\refl\)
+\end{itemize}
+
+\subsection{Vzorkování}
+
+\begin{itemize}
+    \item[\(\randU\):] Náhodné číslo $\in \mathbb{R}, \interval{0,1}$
+    \item[\(\randV\):] Náhodné číslo $\in \mathbb{R}, \interval{0,1}$
+\end{itemize}
+
+\subsection{BRDF}
+
+\begin{itemize}
+    \item[\(\alb\):] Albedo materiálu, poměr mezi pohlceným a odraženým světlem (Lambert)
+    \item[\(k_s\):] Koeficient odrazivosti materiálu (Phong)
+    \item[\(k_d\):] Koeficient difuze materiálu (Phong)
+    \item[\(n\):] Koeficient lesklosti materiálu (Phong)
+    \item[\(\rough\):] Koeficient drsnosti povrchu - roughness(Torrance-Sparrow, Cook-Torrance, Oren-Nayar)
+    \item[\(\ior\):] Koeficient lomu světla - ior (Torrance-Sparrow, Cook-Torrance)
+\end{itemize}
+
 \end{document}
