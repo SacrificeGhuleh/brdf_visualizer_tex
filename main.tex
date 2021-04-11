@@ -118,6 +118,46 @@
 
 \chapter{Úvod}
 TODO
+
+
+\clearpage
+\chapter{Užité symboly}
+Z důvodu použití vyššího množství matematických symbolů v této diplomové práci jsem sjednotil značení použité ve vzorcích. Přehled těchto vzorců s případným doplněním detailů je uveden v následujícím seznamu.
+\section{Obecné}
+\begin{itemize}
+  \item[\(\outRadiance\):] Výsledná zář vyzařovaná z daného bodu
+  \item[\(\emitRadiance\):] Zář, pasivně vyzařovaná z objektu v daném bodě
+  \item[\(\inRadiance\):] Zář dopadající na daný bod
+  \item[\(\irradiance\):] Celková žář dopadající na daný bod
+  \item[\(\brdf\):] BRDF funkce
+  \item[\(\left(\theta,\phi\right)\):] Vektor definovaný sférickými souřadnicemi
+  \item[\(\left(x,y,z\right)\):] Vektor definovaný kartézskými souřadnicemi
+  \item[\(\normVec\):] Vektor normály povrchu
+  \item[\(\inVec\):] Vektor ve směru ke světelnému zdroji. Platí: \(\inVec = \left(\theta_i,\phi_i\right)\)
+  \item[\(\outVec\):] Vektor ve směru k pozorovateli. Platí: \(\outVec = \left(\theta_o,\phi_o\right)\)
+  \item[\(\refl\):] Vektor zrcadlového odrazu světla, platí: \(\refl = 2\left(\inVec\cdot\normVec\right)\normVec-\inVec\)
+  \item[\(\halfVec\):] Poloviční vektor mezi pohledovým a světelným vektorem. Platí: \(\halfVec = \frac{\inVec + \outVec}{\| \inVec + \outVec\|}\)
+  \item[\(\theta_r\):] Úhel odrazu, platí: \(\cos\theta_r = \outVec\cdot\refl\)
+\end{itemize}
+
+\section{Vzorkování}
+
+\begin{itemize}
+  \item[\(\randU\):] Náhodné číslo \(\in \mathbb{R}, \interval{0,1}\)
+  \item[\(\randV\):] Náhodné číslo \(\in \mathbb{R}, \interval{0,1}\)
+\end{itemize}
+
+\section{BRDF}
+
+\begin{itemize}
+  \item[\(\alb\):] Albedo materiálu, poměr mezi pohlceným a odraženým světlem (Lambert)
+  \item[\(k_s\):] Koeficient odrazivosti materiálu (Phong)
+  \item[\(k_d\):] Koeficient difuze materiálu (Phong)
+  \item[\(n\):] Koeficient lesklosti materiálu (Phong)
+  \item[\(\rough\):] Koeficient drsnosti povrchu --- roughness (Torrance-Sparrow, Cook-Torrance, Oren-Nayar)
+  \item[\(\ior\):] Koeficient lomu světla --- ior (Torrance-Sparrow, Cook-Torrance)
+\end{itemize}
+
 \clearpage
 \chapter{Fotorealistický rendering}
 Počítačová grafika se odjakživa snaží svými výsledky co nejvěrněji přiblížit reálnému světu. Fotorealistická grafika je taková, která se tváří jako nerozeznatelná např.\ od fotografie. Pro fotorealismus je nutné, aby rendering (výpočet geometrie, pozice objektů a osvětlení) co nejpřesněji simuloval fyzikální principy šíření světla. V roce 1986 byl realistický rendering popsán integrální rovnicí popisující přenos světelné energie ve scéně. Renderovací rovnice byla popsána simultánně ve článcích~\cite{KajiyaRenderEq} a~\cite{ImmelRenderEq}. Kajiya v~\cite{KajiyaRenderEq} popisuje různé možnosti řešení integrálu renderovací rovnice, mimo jiné i pomocí Monte Carlo metody, kterou pojmenoval jako path tracing~\cite{HainesRayTracingGems2019}. Immel, Cohen a Greenberg v článku~\cite{ImmelRenderEq} navrhují řešení renderovací rovnice pomocí metody konečných prvků, kterou pojmenovali jako metodu radiozity. V této práci se budu dále zabývat řešením renderovací rovnice pouze pomocí metody Monte Carlo. \par
@@ -133,7 +173,7 @@ Renderovací rovnici lze vyjádřit \hyperref[eq:render]{vzorcem~\ref{eq:render}
 
 \section{Osvětlení}
 Jak už bylo zmíněno, realistický rendering se zabývá co nejpřesnější simulací šíření světla ve scéně. V reálném světě je světlo jako takové elektromagnetické záření. Viditelná část světla odpovídá zhruba intervalu \(\interval{390;760}nm\) vlnové délky. Při renderingu se často pracuje pouze s geometrickou optikou. Geometrická optika zjednodučuje při šíření světla světelné paprsky na pouhé vektory, zanedbává vlastnosti vycházející z vlnové podstaty světla. Z pohledu počítačové simulace jsou světelné paprsky vyzařovány světelnými zdroji do scény. Objekty ve scéně světelné paprsky pohlcují a nebo odráží. Odraz a pohlcení světla potom definuje, jak výsledný objekt působí. \par
-Osvětlení objektů ve scéně je popsáno osvětlovacím modelem. Pokud daný osvětlovací model bere v potaz vliv na osvětlení pouze přímými zdroji světla, jedná se o lokální osvětlovací model. Pokud osvětlovací model bere v potaz i světlo odražené ostatními objekty ve scéně, které samy o sobě žádné světlo nevyzařují, jedná se o globální osvětlovací model. Rozdíl mezi osvětlením lokálním a globálním osvětlovacím modelem je patrný z \hyperref[fig:localVsGlobalIllum]{obrázku~\ref{fig:localVsGlobalIllum}}.
+Osvětlení objektů ve scéně je popsáno osvětlovacím modelem. Pokud daný osvětlovací model bere v potaz vliv na osvětlení pouze přímými zdroji světla, jedná se o lokální osvětlovací model. Pokud osvětlovací model bere v potaz i světlo odražené ostatními objekty ve scéně, které samy o sobě žádné světlo nevyzařují, jedná se o globální osvětlovací model. Rozdíl mezi osvětlením lokálním a globálním osvětlovacím modelem je patrný z \hyperref[fig:localVsGlobalIllum]{obrázku~\ref{fig:localVsGlobalIllum}}\footnote{Výsledné renderované obrázky byly vytvořeny v programu Blender 2.92}.
 
 \begin{figure}[ht]%
   \centering
@@ -144,13 +184,16 @@ Osvětlení objektů ve scéně je popsáno osvětlovacím modelem. Pokud daný 
   \label{fig:localVsGlobalIllum}%
 \end{figure}
 
+\subsection{Osvětlení pomocí HDR mapy}
+TODO
+
 \section{Rendering pomocí metody sledování paprsku}
 Při renderingu pomocí klasických metod se postupuje pomocí standardního zobrazovacího řetězce. Postup je ve zkratce následující: Vrcholy tělesa jsou nahrány do GPU, následně se ve fragment shaderu aplikují transformačí matice a matice pro převod z lokálního do globálního prostoru. Následně je provedena rasterizace tělesa. Nakonec je ve fragment shaderu vypočítáno osvětlení tělesa. Standardní zobrazovací řetězec má tu výhodu, že je možné renderovat za běhu programu, v reálném čase. Nevýhodou ovšem je ztráta jisté reálnosti výstupu.\par
 Oproti tomu při použití metody sledování paprsku je scéna protnuta s pomyslnou plochou, ze které jsou potom vysílány do scény paprsky ve formě parametrických přímek. Následně se provádí traverzace ve scéně (testování, který objekt ve scéně paprsek protnul). Při protnutí tělesa je možné následně počítat další odrazy paprsků a simulovat tak šíření světla ve scéně. Výhodou použití metody sledování paprsků je možnost velmi reálných výsledků. Nevýhodou je ale vysoká výpočetní náročnost. Výpočet komplexních scén pouze pomocí metod sledování paprsků v reálném čase je komplikovaný problém. V současné době je možná hardwarová akcelerace na grafických kartách. Pro urychlení výpočtu jsou také používány hluboké neuronové sítě (např.\ technologie Nvidia DLSS). Je možné provádět výpočet pro nižší rozlišení a následně provést upscaling (zvýšení rozlišení). Neuronová síť je schopná dopočítat chybějící data. Výsledkem je dle Nvidia obraz svou kvalitou srovnatelný s výpočtem rovnou ve vyšším rozlišení.
 
 \section{Řešení renderovací rovnice pomocí metody Monte Carlo}
 Analytické řešení renderovací rovnice je téměř nemožné kvůli obrovskému množství vlivů na výsledném integrálu. Z matematického hlediska existuje více způsobů, jak řešit integrály. Monte Carlo se opírá o tezi z teorie pravděpodobnosti, že průměr velkého počtu náhodných veličin se přiblíží střední hodnotě. Řešení renderovací rovnice pomocí metody Monte Carlo navrhuje Kajiya v~\cite{KajiyaRenderEq}. \par
-Monte Carlo je stochastická metoda, v matematice často využívaná pro řešení složitějších integrálů. Metoda je založena na generování náhodných jevů, které jsou následně použity pro určení střední hodnoty výsledku. Pro řešení renderovací rovnice jsou typicky generovány náhodné směry odrazu světla. Výsledný obraz je poté tvořen průměrem určitého počtu vzorků. Typicky se u výsledných obrázků vytvořených pomocí path tracingu uvádí počet vzorků na pixel. Se zvyšujícím se počtem vzorků na pixel typicky stoupá ostrost a přesnost výsledného obrazu. S nízkým počtem vzorků je typicky obraz zatížen šumem (viz zrovnání na \hyperref[fig:samplesPpxComparison]{obrázku~\ref{fig:samplesPpxComparison}}).
+Monte Carlo je stochastická metoda, v matematice často využívaná pro řešení složitějších integrálů. Metoda je založena na generování náhodných jevů, které jsou následně použity pro určení střední hodnoty výsledku. Pro řešení renderovací rovnice jsou typicky generovány náhodné směry odrazu světla. Výsledný obraz je poté tvořen průměrem určitého počtu vzorků. Typicky se u výsledných obrázků vytvořených pomocí path tracingu uvádí počet vzorků na pixel. Se zvyšujícím se počtem vzorků na pixel typicky stoupá ostrost a přesnost výsledného obrazu. S nízkým počtem vzorků je typicky obraz zatížen šumem (viz zrovnání na \hyperref[fig:samplesPpxComparison]{obrázku~\ref{fig:samplesPpxComparison}})\footnote{Výsledné renderované obrázky byly vytvořeny v programu Blender 2.92}.
 
 \begin{figure}[ht]%
   \centering
@@ -164,12 +207,6 @@ Monte Carlo je stochastická metoda, v matematice často využívaná pro řeše
   \caption{Srovnání výsledných obrázků podle počtu vzorků na pixel}%
   \label{fig:samplesPpxComparison}%
 \end{figure}
-
-
-
-
-
-\textit{TODO, pojmy:  realistický rendering, path tracing, renderovací rovnice, monte carlo, světlo, osvětlovací model (lokální, globální iluminace), osvětlení pomocí HDR}.
 
 \clearpage
 \chapter{BRDF}
@@ -263,6 +300,12 @@ Lambertovo BRDF (Lambertovský povrch) se řadí mezi analytické modely BRDF\@.
 \end{equation}
 \(\alb\) ve \hyperref[eq:lambertBRDF]{vztahu~\ref{eq:lambertBRDF}} vyjadřuje poměr mezi pohlceným a odraženým světlem. Tato veličina je také odborně nazývána pojmem albedo. Dělení konstantou \(\pi\) zajišťuje platnost zákona zachování energie. Díky nezávislosti na směru vstupního paprsku je také splněna reciprocita.
 
+\begin{figure}[ht]%
+  \centering\includegraphics[width=5cm]{example-image-a}%
+  \caption{Vizualizace Lambertova BRDF}%
+  \label{fig:lambertBRDFRender}%
+\end{figure}
+
 \subsection{Phong} \label{sec:Phong}
 Phongovo BRDF vychází z Phongova osvětlovacího modelu, řadí se mezi analytické modely BRDF a používá se pro lesklé povrchy. Původní model je definován \hyperref[eq:phongBRDF]{vzorcem~\ref{eq:phongBRDF}}~\cite{Phong1975}
 \begin{equation} \label{eq:phongBRDF}
@@ -282,6 +325,17 @@ Jak Phong, tak Blinn-Phong modely nejsou fyzikálně přesné --- nesplňují z�
   \frac{k_s\left(n+2\right)}{2\pi}{\left(\cos\theta_r\right)}^{n}
 \end{equation}
 
+\begin{figure}[ht]%
+  \centering
+  \subfloat[Vizualizace Phongova BRDF \label{fig:phongBRDFRender}]{{\includegraphics[width=5cm]{example-image-a} }}%
+  \qquad
+  \subfloat[Vizualizace Blinn-Phongova BRDF \label{fig:blinnPhongBRDFRender}]{{\includegraphics[width=5cm]{example-image-b} }}%
+  \qquad
+  \subfloat[Vizualizace fyzikálně korektní verze Phongova BRDF \label{fig:physCorrectPhongBRDFRender}]{{\includegraphics[width=5cm]{example-image-c} }}%
+  \caption{Vizualizace jednotlivých verzí Phongova BRDF}%
+  \label{fig:finalrender}%
+\end{figure}
+
 \subsection{Torrance-Sparrow} \label{sec:torrancesparrow}
 Torrance-Sparrow BRDF patří mezi fyzikální modely a je považován za jeden s nejúplnějších modelů~\cite{BRDFOverview}. Mimo jiné je např.\ schopen simulovat odlesk polarizovaného světla. Tento model simuluje mikroploškové materiály a pomocí parametru roughness (drsnost) simuluje mikroskopické nerovnosti materiálu. Orientace mikroskopických nerovností je v materiálu náhodná. Vyšší hodnota drsnosti materiálu snižuje lesklost materiálu. Torrance-Sparrow brdf funkce je definována \hyperref[eq:TorranceSparrow]{vzorcem~\ref{eq:TorranceSparrow}}. \par
 Pro výpočet se používá distribuční funkce \(D\), která generuje rozložení normál mikroplošek. V této konkrétní implementaci je použita Beckmannova distribuční funkce (viz \hyperref[eq:beckDistr]{vzorec~\ref{eq:beckDistr}}). Beckmannova distribuční funkce pracuje s normálou mikroplošky (kolem které se generuje rozložení) a hodnotou drsnosti materiálu. Jako normála mikroplošky je použit poloviční vektor mezi pohledovým a světelným vektorem (viz \hyperref[sec:Phong]{\ref{sec:Phong} Phong}) z důvodu, že mikroploška perfektně odráží světlo právě v případě, kdy je orientovaná podél polovičního vektoru~\cite{PHARR2017507}. \par
@@ -296,12 +350,26 @@ Poslední část pro výpočet je koeficient geometrického útlumu \(G\), kter�
   G(\outVec,\inVec) & = & \min \left( 1, \frac{2 ( \normVec \cdot \halfVec ) ( \normVec \cdot \outVec )
     }{ ( \outVec \cdot \halfVec ) },\frac{ 2 ( \normVec \cdot \halfVec ) ( \normVec \cdot \inVec ) }{ ( \outVec \cdot \halfVec ) } \right) \label{eq:geomAtatenuation}
 \end{eqnarray}
+
+\begin{figure}[ht]%
+  \centering\includegraphics[width=5cm]{example-image-a}%
+  \caption{Vizualizace Torrance-Sparrow BRDF}%
+  \label{fig:torranceSparrowBRDFRender}%
+\end{figure}
+
 \subsection{Cook-Torrance}
 Cook-Torrance BRDF rozšiřuje mikroploškové BRDF s myšlenkou, že pouze mikroplošky orientované podél vektoru \(\halfVec\) mají vliv na výsledném odrazu světla. Odrazová složka výsledného obrazu využívá pro výpočet opět funkce \(F, D, G\) (viz \hyperref[sec:torrancesparrow]{\ref{sec:torrancesparrow} Torrance-Sparrow}). Cook-Torrance BRDF se vypočítá podle \hyperref[eq:CookTorrance]{vzorce~\ref{eq:CookTorrance}}~\cite{CookTorranceBRDF}. Nevýhodou této BRDF funkce je nesplnění fyzikální přesnosti z důvodu nesplnění zákona zachování energie pro některé \(\left(\outVec,\inVec\right)\)~\cite{BRDFOverview}.
 
 \begin{equation} \label{eq:CookTorrance}
   \brdf  = \frac{F(\outVec)}{\pi} \frac{D(\halfVec,\rough)}{(\normVec\cdot\inVec)} \frac{G(\outVec,\inVec)}{(\normVec\cdot\outVec)}
 \end{equation}
+
+
+\begin{figure}[ht]%
+  \centering\includegraphics[width=5cm]{example-image-a}%
+  \caption{Vizualizace Cook-Torrance BRDF}%
+  \label{fig:cookTorranceBRDFRender}%
+\end{figure}
 
 \subsection{Oren-Nayar}
 Oren-Nayar BRDF popisuje Lambertovské difusivní materiály. Oproti Lambertovu BRDF (\hyperref[sec:Lambert]{viz~\ref{sec:Lambert} Lambert}) pracuje s mikroploškami, které ale na rozdíl od mikroplošek popisovaných např.\ \hyperref[sec:torrancesparrow]{Torrance-Sparrow} modelem nejsou odrazivé, ale difuzivní. Oren-Nayar bere v úvahu odrazy světla mezi jednotlivými mikroploškami s limitovaným maximálním počtem odrazů mezi dvojicí mikroplošek. Pro generování distribuce orientace mikroplošek je použito Gaussovo rozdělení~\cite{OrenNayar}~\cite{BRDFOverview}. Oren-Nayar BRDF je definováno \hyperref[eq:OrenNayar]{vzorcem~\ref{eq:OrenNayar}}
@@ -319,6 +387,67 @@ Oren-Nayar BRDF popisuje Lambertovské difusivní materiály. Oproti Lambertovu 
   L^{2}_{r} & = & 0.17\frac{\alb^{2}}{\pi}\frac{\rough^{2}}{\rough^2+0.13}\left[1 - \cosphiri  \left(\frac{2\beta}{\pi}\right)^{2} \right] \nonumber \\
   \brdf & = & L^{1}_{r} + L^{2}_{r} \label{eq:OrenNayar}
 \end{eqnarray}
+
+\begin{figure}[ht]%
+  \centering\includegraphics[width=5cm]{example-image-a}%
+  \caption{Vizualizace Oren-Nayar BRDF}%
+  \label{fig:orenNayarBRDFRender}%
+\end{figure}
+
+\subsection{Srovnání náročnosti výpočtu BRDF funkcí}
+Následující kapitoly se se zabývají srovnáním jednotlivých BRDF funkcí dle jejich výpočetní složitosti.
+\subsubsection{Metodika výpočtu výpočetní složitosti}
+Při výpočtu složitosti jsem se rozhodl pro praktické měření výkonu jednotlivých algoritmů, protože výsledná hodnota má pro praktickou implementaci vyšší informační hodnotu, než teoretická analýza. Jako metriku jsem zvolil absolutní a relativní čas výpočtu řádově \(10^7\) iterací výpočtu. Výsledky měření jsem pak rozdělil do tří kategorií - celkové srovnání, srovnání BRDF funkcí pro difuzní povrchy a srovnání BRDF funkcí pro lesklé povrchy.
+
+\subsubsection{Výsledky měření, zhodnocení}
+Konkrétní výsledky měření jsou uvedeny v tabulkách \hyperref[tab:DiffuseBRDFsComparison]{\ref{tab:DiffuseBRDFsComparison}}, \hyperref[tab:GlossyBRDFsComparison]{\ref{tab:GlossyBRDFsComparison}} a \hyperref[tab:AllBRDFsComparison]{\ref{tab:AllBRDFsComparison}}.  Z výsledků z \hyperref[tab:DiffuseBRDFsComparison]{tabulky \ref{tab:DiffuseBRDFsComparison}} vyplývá, že Lambertovo BRDF je z hlediska výpočetního výkonu nejefektivnější BRDF funkce. Tento výsledek je očekávatelný, už z důvodu velmi jednoduchého vzorce. Oproti Lambertovu BRDF ale Oren-Nayar poskytuje širší možnosti nastavení díky parametru drsnosti. Oren-Nayar tak může věrněji reprezentovat drsnější difuzivní materiály.\par
+Ze srovnání BRDF funkcí pro lesklé povrchy v \hyperref[tab:GlossyBRDFsComparison]{tabulce \ref{tab:GlossyBRDFsComparison}} vyplývá, že mezi jednotlivými funkcemi není rozdíl příliš markantní. Pozornost si zaslouží rozdíl mezi tradičním Phongovým BRDF a jeho fyzikálně přesnou variantou. Je vidět, že přidáním fyzikální korektnosti se výkon zhoršil pouze o cca \(16\%\).
+
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{r|ll}
+    BRDF funkce & Absolutní čas & Relativní čas \\
+    \hline
+    Lambert     & 0.0470865s    & 1             \\
+    Oren Nayar  & 1.75046s      & 37.1755
+  \end{tabular}
+  \caption{Srovnání BRDF funkcí pro difuzní povrchy}
+  \label{tab:DiffuseBRDFsComparison}
+\end{table}
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{r|ll}
+    BRDF funkce              & Absolutní čas & Relativní čas \\
+    \hline
+    Phong                    & 0.402189s     & 1             \\
+    Blinn Phong              & 0.445108s     & 1.10671       \\
+    Physically correct Phong & 0.46521s      & 1.15669       \\
+    Torrance sparrow         & 0.520102s     & 1.29318
+  \end{tabular}
+  \caption{Srovnání BRDF funkcí pro lesklé povrchy}
+  \label{tab:GlossyBRDFsComparison}
+\end{table}
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{r|ll}
+    BRDF funkce              & Absolutní čas & Relativní čas \\
+    \hline
+    Lambert                  & 0.0470865s    & 1             \\
+    Phong                    & 0.402189s     & 8.54149       \\
+    Blinn Phong              & 0.445108s     & 9.45298       \\
+    Physically correct Phong & 0.46521s      & 9.87989       \\
+    Torrance sparrow         & 0.520102s     & 11.0457       \\
+    Oren Nayar               & 1.75046s      & 37.1755
+  \end{tabular}
+  \caption{Celkové srovnání všech BRDF funkcí}
+  \label{tab:AllBRDFsComparison}
+\end{table}
+
+
+
 
 \clearpage
 \chapter{Vizualizační aplikace}
@@ -442,12 +571,19 @@ Knihovna Dear ImGui je distribuována s open-source licencí a je multiplatformn
 \subsubsection{Glm}
 Obecně v počítačové grafice se velmi často pracuje s vektory, maticemi a operacemi s nimi. Z hlediska výkonu je kritické, aby vektorové a maticové operace byly co nejvíce optimalizované. Z tohoto důvodu jsem se rozhodl pro práci s vektory a maticemi použít knihovnu Glm\footnote{\url{https://github.com/g-truc/glm}}. Knihovna Glm se velmi jednoduše používá, je distribuována pod open-source licencí a je multiplatformní. Knihovna Glm je implementována tak, aby splňovala standard jazyka GLSL, používaném v OpenGL shaderech. Není však na OpenGL závislá a lze tak tuto knihovnu použít i pro jiné účely, než jen pro počítačovou grafiku.
 
-\subsection{Embree}
+\subsubsection{Assimp}
+Aplikace má možnost načítat uživatelské modely pro náhled renderu a nahradit tak výchozí analyticky zadaný model koule. Pro samotné načítání modelů jsem použil knihovnu Assimp\footnote{\url{https://github.com/assimp/assimp}}. Knihovna Assimp je distribuována s 3-bodovou BSD licencí. \par
+Pro zjednodušení je ve výchozím stavu vypnuta většina funkcionality této knihovny, podporováno jsem ve výchozím stavu nechal pouze načítání modelů ve formátu Wavefront obj. Vypnutá funkcionalita lze jednoduše opět zapnout při konfiguraci CMake projektu. Kromě načtení modelu se načítají také materiály. Načtené materiály ale nejsou použity, protože aplikace pracuje s jedním globálním materiálem.
+
+\subsubsection{FreeImage}
+Aplikace umožňuje práci s obrázky -- načítání textur a ukládání snímků z vizualizace BRDF funkce i vizualizace finálního renderu. K tomuto účelu jsem použil rozhraní knihovny FreeImage\footnote{\url{https://freeimage.sourceforge.io/}}.
+
+\subsubsection{Embree}
 Jelikož součástí aplikace je i náhled na výsledný render pomocí path tracingu, použil jsem pro zjednodušení práce knihovnu Embree\footnote{\url{https://github.com/embree/embree}}, která se stará o tvorbu samotných paprsků a následnou traverzaci paprsku a scény. Jelikož primárně je renderován analyticky zadaný model koule, implementoval jsem nad knihovnou Embree i drobné rozhraní pro použití jak načtených modelů, tak analytických těles. Analyticky zadaná tělesa i načtené modely je tak možné používat v jedné scéně. \par
-Knihovna Embree je spravována organizací Intel, je multiplatformní a distribuována s open-source licencí. Knihovna je optimalizována pro použití s Intel procesory. Nejlepšího výkonu je možné dosáhnout s procesory podporujícími AVX instrukcei a při použití Intel kompilátoru. \par
+Knihovna Embree je spravována organizací Intel, je multiplatformní a distribuována s open-source licencí. Knihovna je optimalizována pro použití s Intel procesory. Nejlepšího výkonu je možné dosáhnout s procesory podporujícími AVX instrukce a při použití Intel kompilátoru. \par
 Pro path tracing je možné využívat spoustu jiných knihoven s výpočtem jak na CPU, tak na GPU\@. Je možné používat např.\ přímo Vulkan pro použití na grafické kartě, případně Nvidia OptiX s výpočty také na grafické kartě, rozhodl jsem se pro Embree z důvodu nižších systémových požadavků. Výsledná aplikace je tedy funkční i na méně výkonných počítačích. Zároveň path tracing není primární funkcionalita mé diplomové práce a lze tak použít radši řešení s vyšší kompatibilitou, než s vyšším výkonem (za cenu nižší kompatibility).
 
-\subsection{Spdlog}
+\subsubsection{Spdlog}
 Při vývoji aplikace je velmi užitečné používat různé informační výpisy. Informační výpisy mohou mít různé úrovně sdělení (např.\ informace, varování, chyby\dots). Přestože implementovat takové výpisy na straně aplikace by nebylo složité, rozhodl jsem se pro knihovnu Spdlog\footnote{\url{https://github.com/gabime/spdlog}}. Tato knihovna velmi usnadňuje práci s výpisy, kdy je možné jednoduše nastavit úroveň výpisů, které jsou aktuálně zobrazovány (tzn.\ např.\ lze zapnout pouze vypisování varování a chyb a vypnout informační výpisy). Také lze velmi jednoduše vypisovat nejen do konzole, ale i do souboru. Výhodou je také moderní přístup k výpisům, kdy je pro formátování výstupu použita knihovna fmt\footnote{\url{https://github.com/fmtlib/fmt}}, která byla převzata do standardu C++20. Knihovna také podporuje výpisy z různých vláken v programu, nebo asynchronní přístup. \par
 Knihovna spdlog je multiplatformní a je distribuována s open-source licencí.
 \clearpage
@@ -514,8 +650,6 @@ Zpětný převod normalizovaného vektoru z kartézských souřadnic je také mo
 \chapter{Redukce variance Monte Carlo}\label{sec:reduction}
 Následující kapitoly se zabývají redukcí variance při výpočtu renderovací rovnice pomocí Monte Carlo metody.
 
-\section{Vzorkování směrů odražených paprsků}
-
 \section{Vzorkování hemisféry} \label{sec:hemisphere}
 Jednou z nejjednodušších metod pro vzorkování je vzorkování hemisféry. Uniformní vzorkování hemisféry je definováno \hyperref[eq:hemisphereSampling]{vzorcem~\ref{eq:hemisphereSampling}} (ve sférických souřadnicích). Rozdělení pravděpodobnosti je konstantní, definováno \hyperref[eq:hemisphereSamplingPdf]{vzorcem~\ref{eq:hemisphereSamplingPdf}}. Při tomto vzorkování jsou všechny paprsky rovnoměrně rozdělené, všechny směry mají stejnou pravděpodobnost odrazu. Takové vzorkování je možné použít pro všechny BRDF funkce. Nevýhodou tohoto vzorkování je ale neoptimálnost vůči různým BRDF funkcím. Ideálně by vzorkovací funkce měla co nejpřesněji kopírovat BRDF funkci. \par
 
@@ -563,45 +697,18 @@ Výsledek tohoto vzorkování je vycentrován okolo normály, je tedy potřeba r
 \subsection{Výsledné vzorkování}
 Po spojení vzorkování odrazové a difuzivní části je vhodné adaptovat i výpočet samotného BRDF\@. Při vzorkování difuzivní části je třeba jako BRDF funkci použít pouze difuzivní část Phongova BRDF, při vzorkování odrazové části je použita odrazová část Phongova BRDF\@. Pokud by se použilo Phongovo BRDF bez úpravy, nebylo by dosaženo snížení variance ve výsledném obrazu.~\cite{KrivanekBRDFIBL}
 
+\section{Vzorkování světelných zdrojů}
+TODO
+
+\section{Multiple importance sampling}
+TODO
+
+\section{Závěr}
+TODO
+
 \printbibliography[title={Literatura}, heading=bibintoc]
 
 \appendix
-\chapter{Užité symboly}
 
-\section{Obecné}
-
-\begin{itemize}
-  \item[\(\outRadiance\):] Výsledná zář vyzařovaná z daného bodu
-  \item[\(\emitRadiance\):] Zář, pasivně vyzařovaná z objektu v daném bodě
-  \item[\(\inRadiance\):] Zář dopadající na daný bod
-  \item[\(\irradiance\):] Celková žář dopadající na daný bod
-  \item[\(\brdf\):] BRDF funkce
-  \item[\(\left(\theta,\phi\right)\):] Vektor definovaný sférickými souřadnicemi
-  \item[\(\left(x,y,z\right)\):] Vektor definovaný kartézskými souřadnicemi
-  \item[\(\normVec\):] Vektor normály povrchu
-  \item[\(\inVec\):] Vektor ve směru ke světelnému zdroji. Platí: \(\inVec = \left(\theta_i,\phi_i\right)\)
-  \item[\(\outVec\):] Vektor ve směru k pozorovateli. Platí: \(\outVec = \left(\theta_o,\phi_o\right)\)
-  \item[\(\refl\):] Vektor zrcadlového odrazu světla, platí: \(\refl = 2\left(\inVec\cdot\normVec\right)\normVec-\inVec\)
-  \item[\(\halfVec\):] Poloviční vektor mezi pohledovým a světelným vektorem. Platí: \(\halfVec = \frac{\inVec + \outVec}{\| \inVec + \outVec\|}\)
-  \item[\(\theta_r\):] Úhel odrazu, platí: \(\cos\theta_r = \outVec\cdot\refl\)
-\end{itemize}
-
-\section{Vzorkování}
-
-\begin{itemize}
-  \item[\(\randU\):] Náhodné číslo \(\in \mathbb{R}, \interval{0,1}\)
-  \item[\(\randV\):] Náhodné číslo \(\in \mathbb{R}, \interval{0,1}\)
-\end{itemize}
-
-\section{BRDF}
-
-\begin{itemize}
-  \item[\(\alb\):] Albedo materiálu, poměr mezi pohlceným a odraženým světlem (Lambert)
-  \item[\(k_s\):] Koeficient odrazivosti materiálu (Phong)
-  \item[\(k_d\):] Koeficient difuze materiálu (Phong)
-  \item[\(n\):] Koeficient lesklosti materiálu (Phong)
-  \item[\(\rough\):] Koeficient drsnosti povrchu --- roughness (Torrance-Sparrow, Cook-Torrance, Oren-Nayar)
-  \item[\(\ior\):] Koeficient lomu světla --- ior (Torrance-Sparrow, Cook-Torrance)
-\end{itemize}
 
 \end{document}
