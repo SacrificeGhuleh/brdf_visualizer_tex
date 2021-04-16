@@ -306,6 +306,23 @@ Lambertovo BRDF (Lambertovský povrch) se řadí mezi analytické modely BRDF\@.
   \label{fig:lambertBRDFRender}%
 \end{figure}
 
+\subsection{Ideální odraz} \label{sec:idealReflection}
+BRDF pro ideální odraz odráží světlo pouze v jednom směru, podle zákona odrazu světla. BRDF funkce pro ideální odraz je Diracova \(\delta\)-funkce. Výsledkem je poté zrcadlový materiál.
+
+
+\begin{equation} \label{eq:idealReflectionBRDF}
+  \brdf  =  \left\{\begin{matrix*}[l] \infty & v = \refl \\ 0 & v \neq \refl \end{matrix*}\right.
+\end{equation}
+
+
+\begin{figure}[ht]%
+  \centering
+  \includegraphics[width=5cm]{example-image-c}
+  \caption{Vizualizace BRDF ideálního odrazu}%
+  \label{fig:idealReflectionBRDFViz}%
+\end{figure}
+
+
 \subsection{Phong} \label{sec:Phong}
 Phongovo BRDF vychází z Phongova osvětlovacího modelu, řadí se mezi analytické modely BRDF a používá se pro lesklé povrchy. Původní model je definován \hyperref[eq:phongBRDF]{vzorcem~\ref{eq:phongBRDF}}~\cite{Phong1975}
 \begin{equation} \label{eq:phongBRDF}
@@ -703,7 +720,10 @@ TODO
 \section{Multiple importance sampling}
 TODO
 
-\section{Závěr}
+\section{Optimalizace datových struktur}
+TODO BVH, SAH, AABB...
+
+\chapter{Závěr}
 TODO
 
 \printbibliography[title={Literatura}, heading=bibintoc]
