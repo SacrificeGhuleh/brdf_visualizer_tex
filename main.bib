@@ -53,6 +53,12 @@ Program under project P08-TIC-03717.},
   title  = {A VISUALIZATION SYSTEM FOR BIDIRECTIONAL REFLECTANCE DISTRIBUTION FUNCTIONS},
 }
 
+@misc{BVH,
+  url     = {https://developer.nvidia.com/blog/thinking-parallel-part-ii-tree-traversal-gpu/},
+  journal = {Thinking Parallel, Part II: Tree Traversal on the GPU},
+  author  = {Karras, Tero},
+}
+
 @article{CookTorranceBRDF,
   author  = {Cook, Robert and Torrance, Kenneth},
   year    = {1982},
@@ -70,7 +76,6 @@ Program under project P08-TIC-03717.},
   author = {Brent Burley},
   year   = {2012},
 }
-
 @thesis{Dutre2003GICompendum,
   author  = {Philip Dutré},
   title   = {Global Illumination Compendium},
@@ -79,6 +84,7 @@ Program under project P08-TIC-03717.},
   school  = {Katholieke Universiteit Leuven},
   url     = {https://people.cs.kuleuven.be/~philip.dutre/GI/TotalCompendium.pdf},
 }
+
 @inproceedings{Fors2009BRDFLabAG,
   title     = {BRDFLab: A general system for designing BRDFs},
   author    = {A. For{\'e}s and S. Pattanaik and C. Bosch and X. Pueyo},
@@ -86,14 +92,12 @@ Program under project P08-TIC-03717.},
   year      = {2009},
 }
 
-
-
-@inproceedings{Guibas1997RobustMC,
+ @inproceedings{Guibas1997RobustMC,
   title  = {Robust Monte Carlo methods for light transport simulation},
   author = {L. Guibas and Eric Veach},
   year   = {1997},
-}
-
+} 
+ 
  @book{HainesRayTracingGems2019,
   title     = {Ray Tracing Gems},
   editor    = {Eric Haines and Tomas Akenine-M\"oller},
@@ -101,8 +105,8 @@ Program under project P08-TIC-03717.},
   year      = {2019},
   note      = {\url{http://raytracinggems.com}},
 } 
- 
- @inbook{hapke_2012,
+
+@inbook{hapke_2012,
   place     = {Cambridge},
   edition   = {2},
   title     = {A miscellany of bidirectional reflectances and related quantities},
@@ -112,9 +116,9 @@ Program under project P08-TIC-03717.},
   author    = {Hapke, Bruce},
   year      = {2012},
   pages     = {263–286},
-} 
+}
 
-@book{HughesDamEtAl13,
+ @book{HughesDamEtAl13,
   abstract  = {The third edition remains the most authoritative introduction to the field. The first edition, the original 'Foley and van Dam', helped to define computer graphics and how it could be taught. The second edition became an even more comprehensive resource for practitioners and students alike. This third edition has been completely rewritten to provide detailed and up-to-date coverage of key concepts, algorithms, technologies, and applications. The authors explain the principles, as well as the mathematics, underlying computer graphics-knowledge that is essential for successful work both now and in the future. Early chapters show how to create 2D and 3D pictures right away, supporting experimentation. Later chapters, covering a broad range of topics, demonstrate more sophisticated approaches. Sections on current computer graphics practice show how to apply given principles in common situations, such as how to approximate an ideal solution on available hardware, or how to represent a data structure more efficiently. Topics are reinforced by exercises, programming problems, and hands-on projects.},
   added-at  = {2017-06-18T09:18:32.000+0200},
   address   = {Upper Saddle River, NJ},
@@ -134,7 +138,7 @@ Program under project P08-TIC-03717.},
   year      = 2013,
 }
 
- @inproceedings{ImmelRenderEq,
+@inproceedings{ImmelRenderEq,
   author    = {Immel, David S. and Cohen, Michael F. and Greenberg, Donald P.},
   title     = {A Radiosity Method for Non-Diffuse Environments},
   year      = {1986},
@@ -195,6 +199,7 @@ Program under project P08-TIC-03717.},
   title  = {Using the Modied Phong Reflectance Model for Physically Based Rendering},
 }
 
+
 @article{MollerHughesVectRotation,
   author    = { Tomas   Möller  and  John F.   Hughes },
   title     = {Efficiently Building a Matrix to Rotate One Vector to Another},
@@ -215,6 +220,14 @@ Program under project P08-TIC-03717.},
 },
 }
 
+@book{MonteCarlo,
+  author    = {Jiří Dřímal and David Trunec and Antonín Brablec},
+  title     = {Úvod do metody Monte Carlo},
+  publisher = {Masarykova univerzita},
+  address   = {Brno},
+  year      = {2006},
+  url       = {https://www.physics.muni.cz/~trunec/mc.pdf},
+}
 
 @misc{OpenGLSphere,
   url     = {http://www.songho.ca/opengl/gl_sphere.html},
@@ -253,7 +266,6 @@ Program under project P08-TIC-03717.},
   url       = {http://www.sciencedirect.com/science/article/pii/B9780128006450500051},
   author    = {Matt Pharr and Wenzel Jakob and Greg Humphreys},
 }
-
 @incollection{PHARR2017507,
   title     = {08 - Reflection Models},
   editor    = {Matt Pharr and Wenzel Jakob and Greg Humphreys},
@@ -268,6 +280,7 @@ Program under project P08-TIC-03717.},
   url       = {http://www.sciencedirect.com/science/article/pii/B9780128006450500087},
   author    = {Matt Pharr and Wenzel Jakob and Greg Humphreys},
 }
+
 @incollection{PHARR2017747,
   title     = {13 - Monte Carlo Integration},
   editor    = {Matt Pharr and Wenzel Jakob and Greg Humphreys},
@@ -303,6 +316,24 @@ Program under project P08-TIC-03717.},
   keywords   = {computer graphics, hidden surface removal, graphic display, shading},
 }
 
+@article{SAH,
+  author     = {MacDonald, David J. and Booth, Kellogg S.},
+  title      = {Heuristics for Ray Tracing Using Space Subdivision},
+  year       = {1990},
+  issue_date = {1990},
+  publisher  = {Springer-Verlag},
+  address    = {Berlin, Heidelberg},
+  volume     = {6},
+  number     = {3},
+  issn       = {0178-2789},
+  url        = {https://doi.org/10.1007/BF01911006},
+  doi        = {10.1007/BF01911006},
+  journal    = {Vis. Comput.},
+  month      = may,
+  pages      = {153–166},
+  numpages   = {14},
+}
+
 @article{SchlickFresnel,
   journal   = {Computer Graphics Forum},
   title     = {{An Inexpensive BRDF Model for Physically-based Rendering}},
@@ -322,3 +353,4 @@ Program under project P08-TIC-03717.},
   year      = {2019},
   month     = {10},
 }
+
