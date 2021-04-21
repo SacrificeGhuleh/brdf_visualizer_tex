@@ -199,9 +199,9 @@ Osvětlení objektů ve scéně je popsáno osvětlovacím modelem. Pokud daný 
 
 \begin{figure}[ht]%
   \centering
-  \subfloat[Lokální osvětlovací model]{{\includegraphics[width=5cm]{Figures/cornelldirect.png} }}%
+  \subfloat[Lokální osvětlovací model]{{\includegraphics[width=6cm]{Figures/cornelldirect.png} }}%
   \qquad
-  \subfloat[Globální osvětlovací model]{{\includegraphics[width=5cm]{Figures/cornellIndirect.png} }}%
+  \subfloat[Globální osvětlovací model]{{\includegraphics[width=6cm]{Figures/cornellIndirect.png} }}%
   \caption{Srovnání osvětlovacích modelů}%
   \label{fig:localVsGlobalIllum}%
 \end{figure}
@@ -220,13 +220,13 @@ Pro řešení zobrazovací rovnice jsou typicky generovány náhodné směry odr
 
 \begin{figure}[ht]%
   \centering
-  \subfloat[1 vzorek na pixel]{{\includegraphics[width=5cm]{Figures/cornell1ppx.png} }}%
+  \subfloat[1 vzorek na pixel]{{\includegraphics[width=6cm]{Figures/cornell1ppx.png} }}%
   \qquad
-  \subfloat[4 vzorky na pixel]{{\includegraphics[width=5cm]{Figures/cornell4ppx.png} }}%
+  \subfloat[4 vzorky na pixel]{{\includegraphics[width=6cm]{Figures/cornell4ppx.png} }}%
   \qquad
-  \subfloat[16 vzorků na pixel]{{\includegraphics[width=5cm]{Figures/cornell16ppx.png} }}%
+  \subfloat[16 vzorků na pixel]{{\includegraphics[width=6cm]{Figures/cornell16ppx.png} }}%
   \qquad
-  \subfloat[64 vzorků na pixel]{{\includegraphics[width=5cm]{Figures/cornell64ppx.png} }}%
+  \subfloat[64 vzorků na pixel]{{\includegraphics[width=6cm]{Figures/cornell64ppx.png} }}%
   \caption{Srovnání výsledných obrázků podle počtu vzorků na pixel}%
   \label{fig:samplesPpxComparison}%
 \end{figure}
@@ -276,20 +276,20 @@ Je žádoucí, aby BRDF funkce splňovaly některá základní pravidla. Je důl
     \draw (-4,0) arc (180:0:4 and 4);
 
     \draw [thick, ->] (0,0) -- ++(-5,0) node [at end, above] () {\(\vv{t}\)};
-    \draw [thick, ->] (0,0) -- ++(135:5cm) node [at end, above] () {\(\outVec\)};
+    \draw [thick, ->] (0,0) -- ++(135:6cm) node [at end, above] () {\(\outVec\)};
     % y
     \draw [thick, thick, ->] (0,0) -- ++(0,5) node [at end, above] () {\(\normVec\)};
     % z
     \draw [thick, ->] (0,0,0) -- ++(0,-2.5,-2.5) node [at end, above] () {\(\vv{b}\)};
     % lines spanning angle alpha
-    \draw [thick, ->] (0,0) -- ++(45:5cm) node [at end, above] () {\(\inVec\)};
+    \draw [thick, ->] (0,0) -- ++(45:6cm) node [at end, above] () {\(\inVec\)};
 
     \draw [thin, dashed] (0,0) -- ++(55:3cm);
     \draw [thin, dashed] (0,0) -- ++(35:3cm);
 
-    \draw[thin, dashed, rotate=45] (3,0) ellipse (0.25cm and 0.5cm);
+    \draw[thin, dashed, rotate=45] (3,0) ellipse (0.26cm and 0.6cm);
 
-    \draw [thin, <->] (0,0) ++(90:1.5cm) arc (90:45:1.5cm) node [midway, above] () {\(\theta_i \)};
+    \draw [thin, <->] (0,0) ++(90:1.6cm) arc (90:45:1.6cm) node [midway, above] () {\(\theta_i \)};
 
     \draw [thin, dashed] (1.5,1.5) -- ++(0,-2);
     \draw [thin, dashed] (0,0) -- ++(1.5,-0.5);
@@ -297,9 +297,9 @@ Je žádoucí, aby BRDF funkce splňovaly některá základní pravidla. Je důl
     \draw [thin, dashed] (-2,2) -- ++(0,-2.53);
     \draw [thin, dashed] (0,0) -- ++(-2,-0.5);
 
-    \draw [thin, <->] (0,0) ++(180:2.1cm) arc (185:205:1.5cm) node [midway, left] () {\(\phi_o\)};
+    \draw [thin, <->] (0,0) ++(180:2.1cm) arc (185:205:1.6cm) node [midway, left] () {\(\phi_o\)};
 
-    \draw [thin, <->] (0,0) ++(180:1.7cm) arc (185:326:1.5cm and 0.75cm) node [midway, left] () {\(\phi_i \)};
+    \draw [thin, <->] (0,0) ++(180:1.7cm) arc (185:326:1.6cm and 0.76cm) node [midway, left] () {\(\phi_i \)};
 
     \draw [thin, <->] (0,0) ++(90:2cm) arc (90:135:2cm) node [midway, above] () {\(\theta_o\)};
 
@@ -343,7 +343,7 @@ BRDF podle Beer-Lambertova zákona se řadí mezi analytické modely BRDF\@. Pop
 \(\alb\) ve \hyperref[eq:lambertBRDF]{vztahu~\ref{eq:lambertBRDF}} vyjadřuje poměr mezi pohlceným a odraženým světlem. Tato veličina je také odborně nazývána pojmem albedo. Dělení konstantou \(\pi\) zajišťuje platnost zákona zachování energie. Díky nezávislosti na směru vstupního paprsku je také splněna reciprocita.
 
 \begin{figure}[ht]%
-  \centering\includegraphics[width=5cm]{Figures/visualizations/brdfLambert.png}%
+  \centering\includegraphics[width=6cm]{Figures/visualizations/brdfLambert.png}%
   \caption{Vizualizace BRDF podle Beer-Lambertova zákona}%
   \label{fig:lambertBRDFRender}%
 \end{figure}
@@ -359,7 +359,7 @@ BRDF pro ideální odraz odráží světlo pouze v jednom směru, podle zákona 
 
 \begin{figure}[ht]%
   \centering
-  \includegraphics[width=5cm]{Figures/visualizations/brdfMirror.png}
+  \includegraphics[width=6cm]{Figures/visualizations/brdfMirror.png}
   \caption{Vizualizace BRDF ideálního odrazu}%
   \label{fig:idealReflectionBRDFViz}%
 \end{figure}
@@ -386,11 +386,11 @@ Jak Phong, tak Blinn-Phong modely nejsou fyzikálně přesné --- nesplňují z�
 
 \begin{figure}[ht]%
   \centering
-  \subfloat[Vizualizace BRDF podle Phongova modelu \label{fig:phongBRDFRender}]{{\includegraphics[width=5cm]{Figures/visualizations/brdfPhong.png} }}%
+  \subfloat[Vizualizace BRDF podle Phongova modelu \label{fig:phongBRDFRender}]{{\includegraphics[width=6cm]{Figures/visualizations/brdfPhong.png} }}%
   \qquad
-  \subfloat[Vizualizace Blinn-Phong BRDF \label{fig:blinnPhongBRDFRender}]{{\includegraphics[width=5cm]{Figures/visualizations/brdfBlinnPhong.png} }}%
+  \subfloat[Vizualizace Blinn-Phong BRDF \label{fig:blinnPhongBRDFRender}]{{\includegraphics[width=6cm]{Figures/visualizations/brdfBlinnPhong.png} }}%
   \qquad
-  \subfloat[Vizualizace fyzikálně korektní verze BRDF podle Phongova modelu \label{fig:physCorrectPhongBRDFRender}]{{\includegraphics[width=5cm]{Figures/visualizations/brdfPhysCorrectPhong.png} }}%
+  \subfloat[Vizualizace fyzikálně korektní verze BRDF podle Phongova modelu \label{fig:physCorrectPhongBRDFRender}]{{\includegraphics[width=6cm]{Figures/visualizations/brdfPhysCorrectPhong.png} }}%
   \caption{Vizualizace jednotlivých verzí BRDF podle Phongova modelu}%
   \label{fig:allPhongBRDFRender}%
 \end{figure}
@@ -410,7 +410,7 @@ Dále se počítá poměr odraženého světla a lomeného světla \(F\) pomocí
 \end{eqnarray}
 
 \begin{figure}[ht]%
-  \centering\includegraphics[width=5cm]{Figures/visualizations/brdfTorranceSparrow.png}%
+  \centering\includegraphics[width=6cm]{Figures/visualizations/brdfTorranceSparrow.png}%
   \caption{Vizualizace Torrance-Sparrow BRDF}%
   \label{fig:torranceSparrowBRDFRender}%
 \end{figure}
@@ -424,7 +424,7 @@ Cook-Torrance BRDF rozšiřuje mikroploškové BRDF o myšlenku, že pouze mikro
 
 
 \begin{figure}[ht]%
-  \centering\includegraphics[width=5cm]{Figures/visualizations/brdfCookTorrance.png}%
+  \centering\includegraphics[width=6cm]{Figures/visualizations/brdfCookTorrance.png}%
   \caption{Vizualizace Cook-Torrance BRDF}%
   \label{fig:cookTorranceBRDFRender}%
 \end{figure}
@@ -447,7 +447,7 @@ Oren-Nayar BRDF popisuje Lambertovské difusivní materiály. Na rozdíl od BRDF
 \end{eqnarray}
 
 \begin{figure}[ht]%
-  \centering\includegraphics[width=5cm]{Figures/visualizations/brdfOrenNayar.png}%
+  \centering\includegraphics[width=6cm]{Figures/visualizations/brdfOrenNayar.png}%
   \caption{Vizualizace Oren-Nayar BRDF}%
   \label{fig:orenNayarBRDFRender}%
 \end{figure}
@@ -542,13 +542,13 @@ Postup generování hemisféry použité pro vykreslení BRDF funkcí je zobraze
 
 \begin{figure}[ht]%
   \centering
-  \subfloat[\label{fig:icasehedron}]{{\includegraphics[width=5cm]{Figures/icosphere.png} }}%
+  \subfloat[\label{fig:icasehedron}]{{\includegraphics[width=6cm]{Figures/icosphere.png} }}%
   \qquad
-  \subfloat[\label{fig:halficasehedron}]{{\includegraphics[width=5cm]{Figures/halficosphere.png} }}%
+  \subfloat[\label{fig:halficasehedron}]{{\includegraphics[width=6cm]{Figures/halficosphere.png} }}%
   \qquad
-  \subfloat[\label{fig:halficasehedron1}]{{\includegraphics[width=5cm]{Figures/halficosphere1.png} }}%
+  \subfloat[\label{fig:halficasehedron1}]{{\includegraphics[width=6cm]{Figures/halficosphere1.png} }}%
   \qquad
-  \subfloat[\label{fig:halficasehedron3}]{{\includegraphics[width=5cm]{Figures/halficosphere3.png} }}%
+  \subfloat[\label{fig:halficasehedron3}]{{\includegraphics[width=6cm]{Figures/halficosphere3.png} }}%
   \caption{Postup generování hemisféry}%
   \label{fig:hemisfera}%
 \end{figure}
@@ -609,9 +609,9 @@ Kromě analyticky zadané koule je také možné vizualizovat render libovolnéh
 
 \begin{figure}[ht]%
   \centering
-  \subfloat[Render načteného objektu \label{fig:loadedObjectRender}]{{\includegraphics[width=5cm]{example-image-a} }}%
+  \subfloat[Render načteného objektu \label{fig:loadedObjectRender}]{{\includegraphics[width=6cm]{example-image-a} }}%
   \qquad
-  \subfloat[Render analyticky zadané koule \label{fig:analSphereObjectRender}]{{\includegraphics[width=5cm]{example-image-b} }}%
+  \subfloat[Render analyticky zadané koule \label{fig:analSphereObjectRender}]{{\includegraphics[width=6cm]{example-image-b} }}%
   \caption{Ukázka vizualizace výsledného renderu}%
   \label{fig:finalrender}%
 \end{figure}
@@ -814,11 +814,33 @@ Výsledek tohoto vzorkování je vycentrován okolo normály, je tedy potřeba r
 \subsubsection{Výsledné vzorkování}
 Po spojení vzorkování odrazové a difuzivní části je vhodné adaptovat i výpočet samotného BRDF\@. Při vzorkování difuzivní části je třeba jako BRDF funkci použít pouze difuzivní část BRDF podle Phongova modelu, při vzorkování odrazové části je použita odrazová část BRDF podle Phongova modelu\@. Pokud by se použilo BRDF podle Phongova modelu bez úpravy, nebylo by dosaženo snížení variance ve výsledném obrazu.~\cite{KrivanekBRDFIBL}
 
-\subsection{Vzorkování světelných zdrojů}
-TODO
+\subsection{Vzorkování světelných zdrojů z HDR mapy}
+Pro vzorkování z HDR mapy je potřeba nejprve určit metodiku vzorkování z diskrétní 2D veličiny. Je možné interpretovat 2D veličinu jako 1D veličinu, ale takový přístup není optimální. Lepší řešení je přijít se vzorkováním, které vzorkuje 2D veličinu pomocí dvou náhodných čísel, pomocí dvou marginálních distribucí. V takovém případě je možné vzorkovat z 2D veličiny jako z matice. Nejprve je potřeba vypočítat marginální distribuce. Je možné počítat distribuce ve sloupcích nebo v řádcích. V případě výpočtu marginálních distribucí ve sloupcích je potom vzorkován řádek z daného sloupce, v opačném případě je vzorkován sloupec z daného řádku. Pomocí hodnot \(\randU\) a \(\randV\) je vybrána distribuce, resp.\ výsledná vzorkovaná hodnota.\cite{PHARR2017747}\par
+Tento postup je vhodný provádět na obrazových datech, na kterých je sníženo rozlišení. Díky snížení rozlišení se zjednoduší výpočet a spojí se větší světelné zdroje do jedné oblasti.
+
+
+\begin{figure}[ht]%
+  \centering
+  \subfloat[HDR mapa]{{\includegraphics[width=6cm]{Figures/hdr-env-orig.png} }}%
+  \qquad
+  \subfloat[HDR mapa s marginální distribucí]{{\includegraphics[width=6cm]{Figures/hdr-env-marginal-conditional.png} }}%
+  \caption{Postup vzorkování světelných zdrojů\cite{PHARR2017747}}%
+  \label{fig:lightsSampling}%
+\end{figure}
 
 \subsection{Multiple importance sampling}
 TODO
+
+\begin{figure}[ht]%
+  \centering
+  \subfloat[Vzorkování BRDF]{{\includegraphics[width=6cm]{Figures/brdfsampling.jpg} }}%
+  \qquad
+  \subfloat[Vzorkování světelných zdrojů]{{\includegraphics[width=6cm]{Figures/lightsampling.jpg}}}%
+  \qquad
+  \subfloat[Multiple importance sampling]{{\includegraphics[width=6cm]{Figures/mis.jpg} }}%
+  \caption{Srovnání výsledků vzorkování\cite{Guibas1997RobustMC}}%
+  \label{fig:samplingComparison}%
+\end{figure}
 
 
 \chapter{Závěr}
