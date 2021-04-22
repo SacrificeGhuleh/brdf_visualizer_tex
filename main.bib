@@ -70,12 +70,27 @@ Program under project P08-TIC-03717.},
   doi     = {10.1145/965161.806819},
 }
 
+@inproceedings{DebevecIBL,
+  author    = {Debevec, Paul},
+  title     = {Rendering Synthetic Objects into Real Scenes: Bridging Traditional and Image-Based Graphics with Global Illumination and High Dynamic Range Photography},
+  year      = {1998},
+  isbn      = {0897919998},
+  publisher = {Association for Computing Machinery},
+  address   = {New York, NY, USA},
+  url       = {https://doi.org/10.1145/280814.280864},
+  doi       = {10.1145/280814.280864},
+  booktitle = {Proceedings of the 25th Annual Conference on Computer Graphics and Interactive Techniques},
+  pages     = {189–198},
+  numpages  = {10},
+  series    = {SIGGRAPH '98},
+}
 @inproceedings{DisneyBRDF,
   title  = {Physically-Based Shading at Disney},
   url    = {https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf},
   author = {Brent Burley},
   year   = {2012},
 }
+
 @thesis{Dutre2003GICompendum,
   author  = {Philip Dutré},
   title   = {Global Illumination Compendium},
@@ -85,26 +100,36 @@ Program under project P08-TIC-03717.},
   url     = {https://people.cs.kuleuven.be/~philip.dutre/GI/TotalCompendium.pdf},
 }
 
-@inproceedings{Fors2009BRDFLabAG,
+ @inproceedings{EnergyConservingRadziszewski,
+  author = {Radziszewski, Michal and Alda, Witold},
+  year   = {2008},
+  month  = {06},
+  pages  = {46-55},
+  title  = {Family of Energy Conserving Glossy Reflection Models},
+  volume = {5102},
+  doi    = {10.1007/978-3-540-69387-1_6},
+} 
+ 
+ @inproceedings{Fors2009BRDFLabAG,
   title     = {BRDFLab: A general system for designing BRDFs},
   author    = {A. For{\'e}s and S. Pattanaik and C. Bosch and X. Pueyo},
   booktitle = {CEIG},
   year      = {2009},
-}
+} 
 
- @inproceedings{Guibas1997RobustMC,
+@inproceedings{Guibas1997RobustMC,
   title  = {Robust Monte Carlo methods for light transport simulation},
   author = {L. Guibas and Eric Veach},
   year   = {1997},
-} 
- 
+}
+
  @book{HainesRayTracingGems2019,
   title     = {Ray Tracing Gems},
   editor    = {Eric Haines and Tomas Akenine-M\"oller},
   publisher = {Apress},
   year      = {2019},
   note      = {\url{http://raytracinggems.com}},
-} 
+}
 
 @inbook{hapke_2012,
   place     = {Cambridge},
@@ -118,7 +143,7 @@ Program under project P08-TIC-03717.},
   pages     = {263–286},
 }
 
- @book{HughesDamEtAl13,
+@book{HughesDamEtAl13,
   abstract  = {The third edition remains the most authoritative introduction to the field. The first edition, the original 'Foley and van Dam', helped to define computer graphics and how it could be taught. The second edition became an even more comprehensive resource for practitioners and students alike. This third edition has been completely rewritten to provide detailed and up-to-date coverage of key concepts, algorithms, technologies, and applications. The authors explain the principles, as well as the mathematics, underlying computer graphics-knowledge that is essential for successful work both now and in the future. Early chapters show how to create 2D and 3D pictures right away, supporting experimentation. Later chapters, covering a broad range of topics, demonstrate more sophisticated approaches. Sections on current computer graphics practice show how to apply given principles in common situations, such as how to approximate an ideal solution on available hardware, or how to represent a data structure more efficiently. Topics are reinforced by exercises, programming problems, and hands-on projects.},
   added-at  = {2017-06-18T09:18:32.000+0200},
   address   = {Upper Saddle River, NJ},
@@ -184,6 +209,7 @@ Program under project P08-TIC-03717.},
   url       = {https://doi.org/10.1007/978-0-387-31439-6_534},
 }
 
+
 @article{KrivanekBRDFIBL,
   author   = {Jaroslav Křivánek},
   title    = {Image-Based Lighting on Surfaces with Arbitrary BRDF},
@@ -199,6 +225,21 @@ Program under project P08-TIC-03717.},
   title  = {Using the Modied Phong Reflectance Model for Physically Based Rendering},
 }
 
+@inproceedings{MicrofacetWalter,
+  author    = {Walter, Bruce and Marschner, Stephen R. and Li, Hongsong and Torrance, Kenneth E.},
+  title     = {Microfacet Models for Refraction through Rough Surfaces},
+  year      = {2007},
+  isbn      = {9783905673524},
+  publisher = {Eurographics Association},
+  address   = {Goslar, DEU},
+  abstract  = {Microfacet models have proven very successful for modeling light reflection from rough surfaces. In this paper we review microfacet theory and demonstrate how it can be extended to simulate transmission through rough surfaces such as etched glass. We compare the resulting transmission model to measured data from several real surfaces and discuss appropriate choices for the microfacet distribution and shadowing-masking functions. Since rendering transmission through media requires tracking light that crosses at least two interfaces, good importance sampling is a practical necessity. Therefore, we also describe efficient schemes for sampling the microfacet models and the corresponding probability density functions.},
+  booktitle = {Proceedings of the 18th Eurographics Conference on Rendering Techniques},
+  pages     = {195–206},
+  numpages  = {12},
+  keywords  = {global illumination, refraction, cook-torrance model, microfacet BTDF, Monte Carlo sampling},
+  location  = {Grenoble, France},
+  series    = {EGSR'07},
+}
 
 @article{MollerHughesVectRotation,
   author    = { Tomas   Möller  and  John F.   Hughes },
@@ -228,7 +269,6 @@ Program under project P08-TIC-03717.},
   year      = {2006},
   url       = {https://www.physics.muni.cz/~trunec/mc.pdf},
 }
-
 @misc{OpenGLSphere,
   url     = {http://www.songho.ca/opengl/gl_sphere.html},
   journal = {OpenGL Sphere},
@@ -266,6 +306,7 @@ Program under project P08-TIC-03717.},
   url       = {http://www.sciencedirect.com/science/article/pii/B9780128006450500051},
   author    = {Matt Pharr and Wenzel Jakob and Greg Humphreys},
 }
+
 @incollection{PHARR2017507,
   title     = {08 - Reflection Models},
   editor    = {Matt Pharr and Wenzel Jakob and Greg Humphreys},
@@ -353,4 +394,3 @@ Program under project P08-TIC-03717.},
   year      = {2019},
   month     = {10},
 }
-

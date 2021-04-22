@@ -122,6 +122,8 @@
 
 
 % Zacatek dokumentu
+
+\pagenumbering{Roman}
 \begin{document}
 
 % Nechame vysazet titulni strany.
@@ -129,6 +131,8 @@
 % A nasleduje text zaverecne prace.
 
 \chapter{Úvod}
+\pagenumbering{arabic}
+\setcounter{page}{1} %
 TODO
 
 
@@ -194,7 +198,7 @@ Zobrazovací rovnici lze vyjádřit \hyperref[eq:render]{vzorcem~\ref{eq:render}
 \end{equation}
 
 \section{Osvětlení}
-Jak už bylo zmíněno, realistický rendering se zabývá co nejpřesnější simulací šíření světla ve scéně. V reálném světě je světlo jako takové elektromagnetické záření. Viditelná část světla odpovídá zhruba intervalu \(\intervaloo{390}{760}nm\) vlnové délky. Při renderingu se často pracuje pouze s geometrickou optikou. Geometrická optika zjednodušuje při šíření světla světelné paprsky na analyticky zadané orientované úsečky, zanedbává vlastnosti vycházející z vlnové podstaty světla. Z pohledu počítačové simulace jsou světelné paprsky vyzařovány světelnými zdroji do scény. Objekty ve scéně se světelnými paprsky interagují (např. pohlcují, odráží, lámou\dots). Tato interakce objektu a světla definuje, jak výsledný objekt vizuálně působí. \par
+Jak už bylo zmíněno, realistický rendering se zabývá co nejpřesnější simulací šíření světla ve scéně. V reálném světě je světlo jako takové elektromagnetické záření. Viditelná část světla odpovídá zhruba intervalu \(\intervaloo{390}{760}nm\) vlnové délky. Při renderingu se často pracuje pouze s geometrickou optikou. Geometrická optika zjednodušuje při šíření světla světelné paprsky na analyticky zadané orientované úsečky, zanedbává vlastnosti vycházející z vlnové podstaty světla. Z pohledu počítačové simulace jsou světelné paprsky vyzařovány světelnými zdroji do scény. Objekty ve scéně se světelnými paprsky interagují (např.~pohlcují, odráží, lámou\dots). Tato interakce objektu a světla definuje, jak výsledný objekt vizuálně působí. \par
 Osvětlení objektů ve scéně je popsáno osvětlovacím modelem. Pokud daný osvětlovací model bere v potaz vliv na osvětlení pouze přímými zdroji světla, jedná se o lokální osvětlovací model. Pokud osvětlovací model bere v potaz i světlo odražené ostatními objekty ve scéně, které samy o sobě žádné světlo nevyzařují, jedná se o globální osvětlovací model. Rozdíl mezi osvětlením lokálním a globálním osvětlovacím modelem je patrný z \hyperref[fig:localVsGlobalIllum]{obrázku~\ref{fig:localVsGlobalIllum}}\footnote{Výsledné renderované obrázky byly vytvořeny v programu Blender 2.92}.
 
 \begin{figure}[ht]%
@@ -206,8 +210,20 @@ Osvětlení objektů ve scéně je popsáno osvětlovacím modelem. Pokud daný 
   \label{fig:localVsGlobalIllum}%
 \end{figure}
 
-\subsection{Osvětlení pomocí HDR mapy}
-TODO
+\subsection{Osvětlení pomocí mapy prostředí}
+V počítačové grafice je v zásadě standard použití mapy prostředí jako pozadí pro scénu. Toto použití je pak dále rozšířeno v realistickém renderingu, mapa prostředí pak slouží pro osvětlení. Mapa prostředí pak v zásadě určuje osvětlení jednoho bodu ve scéně okolním prostředím, které je uloženo jako obrazová data. Reprezentace osvětlení z pohledu jednoho bodu je zobrazeno na \hyperref[fig:hdrMapProbe]{obrázku~\ref{fig:hdrMapProbe}}. V praktické implementaci se pak většinou používá sférická mapa (lze se také setkat s pojmem tzv. \textquote{latitude, longitude} mapování), která je aplikována jako textura na pomyslnou koupli obklopující scénu, nebo tzv. \textquote{cube map}, kde je mapa použita jako textura pro pomyslnou krychli obklopující scénu. Ukázka sférické mapy je zobrazena na \hyperref[fig:hdrMapSpheric]{obrázku~\ref{fig:hdrMapSpheric}}, ukázka cube map je ukázána na \hyperref[fig:hdrMapCube]{obrázku~\ref{fig:hdrMapCube}}. Sférická mapa je častěji používána s technologií ray tracing, z důvodu jednoduššího převodu směrového vektoru sledovaného paprsku do sférických souřadnic a následně do samotného texelu této textury. Cube map je pak častěji používána v klasické rasterizaci z důvodu jednoduchého použití díky přímé podpoře v OpenGL shaderech.\par
+Fotorealistického osvětlení modelů ve scéně pomocí mapy prostředí je dosaženo díky odrazů paprsků od povrchu objektů, které jsou odraženy do mapy prostředí. Texely mapy prostředí tak mají přímý vliv na osvětlení objektu a není potřeba použít ve scéně bodová světla. Pro fotorealismus je také důležitý formát mapy prostředí. Standardní fotografie nemají dostatečnou bitovou hloubku pro zachycení reálné intenzity světla. Je proto vhodné použít HDR snímky, kde jsou hodnoty jednotlivých pixelů reprezentovány jako reálná čísla ve formátu float.
+
+\begin{figure}[ht]%
+  \centering
+  \subfloat[\label{fig:hdrMapProbe}]{{\includegraphics[height=3cm]{Figures/mapProbe.jpg}}}%
+  \qquad
+  \subfloat[\label{fig:hdrMapSpheric}]{{\includegraphics[height=3cm]{Figures/mapSphere.jpg}}}%
+  \qquad
+  \subfloat[\label{fig:hdrMapCube}]{{\includegraphics[height=3cm]{Figures/mapCube.jpg}}}%
+  \caption{Ukázka různých map prostředí\cite{DebevecIBL}}%
+  \label{fig:hdrMapsComparison}%
+\end{figure}
 
 \section{Rendering pomocí metody sledování paprsku}
 Při renderingu pomocí klasických metod se postupuje pomocí standardního zobrazovacího řetězce. Postup je ve zkratce následující: Vrcholy tělesa jsou nahrány do GPU, následně se ve fragment shaderu aplikují transformační matice a matice pro převod z lokálního do globálního prostoru. Následně je provedena rasterizace tělesa. Nakonec je ve fragment shaderu vypočítáno osvětlení tělesa. Standardní zobrazovací řetězec má tu výhodu, že je možné renderovat za běhu programu, v reálném čase. Nevýhodou je však ztráta jisté reálnosti výstupu.\par
@@ -242,7 +258,9 @@ Aplikace vytvořená v této práci spadá do první kategorie, primárně se za
 
 \subsection{Aplikace pro zobrazení BRDF funkcí}
 Ve článku~\cite{DisneyBRDF} byla představena aplikace Disney BRDF Explorer\cite{sourceDisneyBRDF}. Aplikace umí načítat a srovnávat analyticky zadané BRDF modely. Aplikace také umí načítat a zobrazovat BRDF modely popsané pomocí měření (např.\ z MERL\footnote{\url{https://www.merl.com/brdf/}} databáze), umí také zobrazit finální render s použitím zvolené BRDF funkce. Aplikace je licencována jako open-source, je multiplatformní a používá pro svou funkcionalitu knihovnu QT\@. Pro rendering je použita technologie OpenGL\@.\par
-Článek~\cite{brdfviz} se zabývá implementací systému pro vizualizaci BRDF funkcí dostupných v databázi \textquote{Oregon BRDF Library}\footnote{\url{https://math.nist.gov/~FHunt/appearance/obl.html}}. Aplikace je implementována za pomocí knihovny AVS Express. Výsledná aplikace není veřejně dostupná.
+Článek~\cite{brdfviz} se zabývá implementací systému pro vizualizaci BRDF funkcí dostupných v databázi \textquote{Oregon BRDF Library}\footnote{\url{https://math.nist.gov/~FHunt/appearance/obl.html}}. Aplikace je implementována za pomocí knihovny AVS Express. Výsledná aplikace není veřejně dostupná.\par
+Existují také aplikace, které je možné používat v prohlížeči. Taková aplikace je např.\ Photongram\footnote{\url{http://shihchinw.github.io/Photongram}}. Aplikace umožňuje zobrazení čtyř základních BRDF funkcí. Jednotlivým funkcím lze nastavovat parametry, je také možné zobrazit finální render. Není však možné zobrazit finální render i vizualizaci BRDF funkce zároveň. \par
+Další webovou službou pro vizualizaci BRDF je BSDF Visualizer\footnote{\url{https://n8vm.github.io/BSDF-Visualizer/}}. Aplikace podporuje zobrazení základních BRDF funkcí, větší část zobrazovaných funkcí jsou různé modifikace BRDF podle Disney. Je také možné načíst uživatelsky implementovanou BRDF funkci, definovanou kódem pro GLSL shader. Načtený kód pro BRDF funkci je třeba dodat ve formátu \textquote{yaml}, je možné přidat nejen implementaci BRDF funkce spolu s pomocnými funkcemi, ale i parametry pro funkci ve formátu uniformních proměnných. Aplikace umožňuje také vizualizaci finálního renderu, který může být osvětlen pomocí bodového světla, nebo pomocí sférické mapy. Zajímavou funkcí pak je možnost přímé vizualizace BRDF funkce na povrchu renderovaného tělesa.
 
 \subsection{Aplikace pro návrh BRDF funkcí}
 Ve článku~\cite{Fors2009BRDFLabAG} je popsána aplikace BRDFLab\cite{sourceBRDFLab} pro vizualizaci BRDF funkcí zadaných analyticky, pomocí naměřených dat, nebo pomocí dat získaných simulací. Také je možné vytvořit BRDF funkce kombinací analyticky zadaných, předpřipravených laloků. Aplikace také umožňuje vizualizaci finálního renderu s použitím BRDF funkce. Aplikace je distribuována jako open-source, pro GUI je použita knihovna QT, pro rendering je použita knihovna Ogre3D.
@@ -259,13 +277,25 @@ BRDF je matematická funkce, která definuje pro daný materiál odrazivost povr
   \brdf = \frac{d\outRadiance}{\difirradiance} = \frac{d\outRadiance}{\inRadiance \inDotNorm d\inVec}
 \end{equation}
 
-Je žádoucí, aby BRDF funkce splňovaly některá základní pravidla. Je důležitá  fyzikální přesnost BRDF funkce, pro kterou musí být musí být splněny následující podmínky~\cite{PHARR2017313}:%\footnote{TODO jsou to všechny možné (známé) podmínky?}:
+Je žádoucí, aby BRDF funkce splňovaly některá základní pravidla. Je důležitá  fyzikální přesnost BRDF funkce, pro kterou musí být musí být splněny následující podmínky~\cite{PHARR2017313}:
+
 \begin{enumerate}
   % 10.3 Reciprocity 
   \item Princip vzájemnosti (Helmholtzův princip reciprocity,~\cite{hapke_2012}) --- Pro všechny dvojice \(\inVec\) a \(\outVec\) platí: \(\brdf = f_r\left(p,\inVec,\outVec\right)\)
-  \item Princip zachování energie --- Celková energie odraženého světla nemůže být vyšší, než energie příchozího světla
+  \item Princip zachování energie --- Celková energie odraženého světla nemůže být vyšší, než energie příchozího světla. Zároveň je také žádoucí, aby bylo odraženo a pohlceno všechno příchozí světlo.
   \item BRDF musí mít vždy nezáporný výsledek
 \end{enumerate}
+Tyto podmínky jsou potřeba pro korektní výstup BRDF funkce a je možné je považovat za základní trojici podmínek. Dále je možné definovat několik dalších podmínek pro BRDF funkce, aby výsledné rendery byly věrohodné z vizuálního hlediska\cite{EnergyConservingRadziszewski}:
+
+\begin{enumerate}
+  \item Spojitost funkce --- BRDF funkce by měla být spojitá, nespojitosti jsou pro lidské oko nepřirozené. Spojitost BRDF funkcí mohou porušovat např. BRDF funkce, které využívají metody \textquote{min}, \textquote{max}.
+  \item Omezení difuzní složky --- TODO
+  \item Omezení zrcadlové složky --- TODO
+  \item Možnost jednoduchého vzorkování --- TODO
+\end{enumerate}
+
+Další doplňující podmínky lze definovat pro BRDF funkce, které využívají mikroplošky. Podmínky pro BRDF využívající mikroplošky jsou podrobněji rozvedeny v \hyperref[sec:torrancesparrow]{kapitole~\ref{sec:torrancesparrow} Torrance-Sparrow}.
+
 \begin{figure}[ht!]
   \centering
   \begin{tikzpicture}[scale=0.6]
@@ -408,6 +438,9 @@ Dále se počítá poměr odraženého světla a lomeného světla \(F\) pomocí
   G(\outVec,\inVec) & = & \min \left( 1, \frac{2 ( \normVec \cdot \halfVec ) ( \normVec \cdot \outVec )
     }{ ( \outVec \cdot \halfVec ) },\frac{ 2 ( \normVec \cdot \halfVec ) ( \normVec \cdot \inVec ) }{ ( \outVec \cdot \halfVec ) } \right) \label{eq:geomAtatenuation}
 \end{eqnarray}
+
+TODO podmínky D + G\cite{MicrofacetWalter}
+
 
 \begin{figure}[ht]%
   \centering\includegraphics[width=6cm]{Figures/visualizations/brdfTorranceSparrow.png}%
@@ -737,6 +770,7 @@ Struktury dělící prostor rozdělují prostor na menší části, které obsah
 Jednoduché uložení objektů v poli je nejjednodušší způsob pro řešení tohoto problému. Následná traverzace paprsku scénou se při profilingu ukáže jako jedna z nejnáročnějších částí aplikace, co se výpočetního času týče. Tento problém narůstá s počtem objektů ve scéně, jelikož je vždy nutné pro každý paprsek ve scéně vzít v úvahu každý objekt v poli. Tento způsob je vhodný pouze pro malé scény s nízkým počtem objektů, případně pro prvotní rychlé a jednoduché dosažní výsledků.
 
 \subsection{Bounding Volume Hierarchy}
+TODO složitosti\par
 BVH (Bounding Volume Hierarchy) je způsob rozdělení těles hierarchicky, do stromové struktury. Pro reprezentaci se nejčastěji používá binární strom. Uzly ve stromu reprezentují obalovou strukturu definující objem, ve kterém jsou uloženy další uzly.  \par
 Listy stromu reprezentují přímo tělesa, každé těleso může být ve stromu právě jednou. Těleso listu může být jak jednotlivý objekt ve scéně, tak případně jednotlivý, samostatný polygon objektu. Ukázka reprezentace objektů v BVH stromu je zobrazena na \hyperref[fig:bvh]{obrázku~\ref{fig:bvh}}
 
