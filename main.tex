@@ -44,6 +44,7 @@
 
 \newcommand{\brdf}{f_r\left(\point,\omega_{o},\omega_{i}\right)}
 \newcommand{\normVec}{\uvec{n}}
+\newcommand{\normMicroVec}{\uvec{m}}
 \newcommand{\inVec}{\omega_{i}}
 \newcommand{\outVec}{\omega_{o}}
 \newcommand{\refl}{\omega_{r}}
@@ -111,6 +112,7 @@
 \AddAcronym{BRDF}{Bidirectional reflectance distribution function}
 \AddAcronym{BVH}{Bounding Volume Hierarchy}
 \AddAcronym{IOR}{Index of refraction}
+\AddAcronym{MIS}{Multiple Importance Sampling}
 \AddAcronym{PDF}{Probability density function}
 \AddAcronym{SAH}{Surface Area Heuristic}
 
@@ -153,6 +155,7 @@ Z důvodu použití vyššího množství matematických symbolů v této diplom
   \item[\(\left(\theta,\phi\right)\):] Směrový vektor definovaný sférickými souřadnicemi\footnote{Bez informace o velikosti vektoru, v této práci předpokládám jednotkový vektor}
   \item[\(\left(x,y,z\right)\):] Vektor definovaný kartézskými souřadnicemi
   \item[\(\normVec\):] Vektor normály povrchu
+  \item[\(\normMicroVec\):] Vektor normály mikroplošky
   \item[\(\inVec\):] Vektor z daného bodu \(p\) ve směru ke světelnému zdroji. Platí: \(\inVec = \left(\theta_i,\phi_i\right)\)
   \item[\(\outVec\):] Vektor z daného bodu \(p\) ve směru k pozorovateli. Platí: \(\outVec = \left(\theta_o,\phi_o\right)\)
   \item[\(\refl\):] Vektor zrcadlového odrazu světla, platí: \(\refl = 2\left(\inVec\cdot\normVec\right)\normVec-\inVec\)
@@ -279,20 +282,20 @@ BRDF je matematická funkce, která definuje pro daný materiál odrazivost povr
 
 Je žádoucí, aby BRDF funkce splňovaly některá základní pravidla. Je důležitá  fyzikální přesnost BRDF funkce, pro kterou musí být musí být splněny následující podmínky~\cite{PHARR2017313}:
 
-\begin{enumerate}
+\begin{itemize}
   % 10.3 Reciprocity 
-  \item Princip vzájemnosti (Helmholtzův princip reciprocity,~\cite{hapke_2012}) --- Pro všechny dvojice \(\inVec\) a \(\outVec\) platí: \(\brdf = f_r\left(p,\inVec,\outVec\right)\)
+  \item Princip vzájemnosti (Helmholtzův princip reciprocity,~\cite{hapke_2012}) --- Pro všechny dvojice \(\inVec\) a \(\outVec\) platí: \(\brdf = f_r\left(p,\inVec,\outVec\right)\).
   \item Princip zachování energie --- Celková energie odraženého světla nemůže být vyšší, než energie příchozího světla. Zároveň je také žádoucí, aby bylo odraženo a pohlceno všechno příchozí světlo.
-  \item BRDF musí mít vždy nezáporný výsledek
-\end{enumerate}
+  \item BRDF musí mít vždy nezáporný výsledek.
+\end{itemize}
 Tyto podmínky jsou potřeba pro korektní výstup BRDF funkce a je možné je považovat za základní trojici podmínek. Dále je možné definovat několik dalších podmínek pro BRDF funkce, aby výsledné rendery byly věrohodné z vizuálního hlediska\cite{EnergyConservingRadziszewski}:
 
-\begin{enumerate}
-  \item Spojitost funkce --- BRDF funkce by měla být spojitá, nespojitosti jsou pro lidské oko nepřirozené. Spojitost BRDF funkcí mohou porušovat např. BRDF funkce, které využívají metody \textquote{min}, \textquote{max}.
-  \item Omezení difuzní složky --- TODO
-  \item Omezení zrcadlové složky --- TODO
-  \item Možnost jednoduchého vzorkování --- TODO
-\end{enumerate}
+\begin{itemize}
+  \item BRDF funkce by měla být spojitá, nespojitosti jsou pro lidské oko nepřirozené. Spojitost BRDF funkcí mohou porušovat např. BRDF funkce, které využívají metody \textquote{min}, \textquote{max}.
+  \item BRDF funkce by měla mít možnost nastavení parametru zrcadlové složky tak, aby bylo možné dosáhnout i matného povrchu.
+  \item BRDF funkce by měla mít možnost nastavení parametru zrcadlové složky tak, že pokud je hodnota tohoto parametru blížící se nekonečnu, BRDF funkce se blíží ideálnímu odrazu.
+  \item Možnost jednoduchého vzorkování --- BRDF funkce by měla být jednoduše vzorkovatelná, pdf funkce BRDF funkce by měla být analyticky vyjádřitelná.
+\end{itemize}
 
 Další doplňující podmínky lze definovat pro BRDF funkce, které využívají mikroplošky. Podmínky pro BRDF využívající mikroplošky jsou podrobněji rozvedeny v \hyperref[sec:torrancesparrow]{kapitole~\ref{sec:torrancesparrow} Torrance-Sparrow}.
 
@@ -432,15 +435,25 @@ Dále se počítá poměr odraženého světla a lomeného světla \(F\) pomocí
 
 
 \begin{eqnarray}
-  \brdf & = & \frac{k_d}{\pi} + \frac{k_s D(\halfVec,\rough) F(\outVec) G(\outVec,\inVec)}{4\pi (\normVec \cdot \inVec)}\label{eq:TorranceSparrow}\\
+  \brdf & = & \frac{k_d}{\pi} + \frac{k_s D(\halfVec,\rough) F(\outVec) G(\outVec,\inVec, \normMicroVec)}{4\pi (\normVec \cdot \inVec)}\label{eq:TorranceSparrow}\\
   D(\halfVec,\rough) & = & \frac{e^{\left(\frac{(\normVec\cdot \halfVec)^{2}-1}{\rough^{2}(\normVec \cdot \halfVec)^{2}}\right)}}{\rough^2(\normVec\cdot \halfVec)^{2}}\label{eq:beckDistr}\\
   F(\outVec) & \approx & R(\theta) = \Fzero + {(1-\Fzero)}{(1-\cos\theta)}^{5}\label{eq:schlickFresnel}\\
-  G(\outVec,\inVec) & = & \min \left( 1, \frac{2 ( \normVec \cdot \halfVec ) ( \normVec \cdot \outVec )
+  G(\outVec,\inVec, \normMicroVec) & = & \min \left( 1, \frac{2 ( \normVec \cdot \halfVec ) ( \normVec \cdot \outVec )
     }{ ( \outVec \cdot \halfVec ) },\frac{ 2 ( \normVec \cdot \halfVec ) ( \normVec \cdot \inVec ) }{ ( \outVec \cdot \halfVec ) } \right) \label{eq:geomAtatenuation}
 \end{eqnarray}
 
-TODO podmínky D + G\cite{MicrofacetWalter}
-
+Ve článku \cite{MicrofacetWalter} byly uvedeny podmínky, pro distribuční funkce \(D\) a  funkce pro výpočet geometrického útlumu \(G\),m které by měly být splněny, aby byly výsledky realistické. Pro distribuční funkce \(D\) by mělo být splněno:
+\begin{itemize}
+  \item Hodnota distribuční funkce je nezáporná, \(D(\halfVec,\rough) \in \intervalco{0}{\infty}\).
+  \item Celková plocha mikroplošek povrchu tělesa je větší nebo rovna ploše povrchu tělesa.
+  \item Zobrazená plocha mikroplošek je stejná jako zobrazená plocha povrchu tělesa.
+\end{itemize}
+Funkce geometrického útlumu \(G\) by měly splňovat alespoň následující podmínky:
+\begin{itemize}
+  \item Pro hodnotu funkce geometrického útlumu platí: \(G(\outVec, \inVec, \normMicroVec) \in \intervalcc{0}{1}\).
+  \item Funkce útlumu by měla být symetrická, platí \(G(\outVec, \inVec, \normMicroVec) = G(\inVec, \outVec, \normMicroVec)\).
+  \item Zadní strana mikroplošky by neměla být viditelná v případě pohledu na přední stranu makroplošky a naopak.
+\end{itemize}
 
 \begin{figure}[ht]%
   \centering\includegraphics[width=6cm]{Figures/visualizations/brdfTorranceSparrow.png}%
@@ -813,7 +826,7 @@ Jednou z nejjednodušších metod pro vzorkování je vzorkování hemisféry. U
   p = \frac{1}{2\pi}
 \end{equation}
 
-Jedna z možností optimalizace je použití vzorkování hemisféry závislém na cosinu úhlu mezi vstupním paprskem a normálou povrchu. Základní tezí je, že paprsky s největším úhlem mají nejmenší vliv na výsledné osvětlení v daném bodě. Vzorkování by tedy mělo mít rozložení vzorků více kumulované ve směru normály oproti ostatním směrům. Jednou z možností jak generovat paprsky touto metodou je pomocí Malleyho metody. Tato metoda spočívá v generování bodu v jednotkovém disku pomocí soustředných kruhů~\cite{PHARR2017747}. Výsledné souřadnice v kartézském systému se vypočítají pomocí \hyperref[eq:concentricHemisphere]{vzorce~\ref{eq:concentricHemisphere}}. Pro výpočet je potřeba převést \(\randU\) a \(\randV\) z intervalu \(\intervalco{0}{1}\) do intervalu \(\intervalco{-1}{1}\)  Rozdělení pravděpodobnosti je definováno \hyperref[eq:concentricHemisphere]{vzorcem~\ref{eq:concentricHemispherePdf}}.
+Jedna z možností optimalizace je použití vzorkování hemisféry závislém na cosinu úhlu mezi vstupním paprskem a normálou povrchu. Základní tezí je, že paprsky s největším úhlem mají nejmenší vliv na výsledné osvětlení v daném bodě. Vzorkování by tedy mělo mít rozložení vzorků více kumulované ve směru normály oproti ostatním směrům. Jednou z možností, jak generovat paprsky touto metodou je pomocí Malleyho metody. Tato metoda spočívá v generování bodu v jednotkovém disku pomocí soustředných kruhů~\cite{PHARR2017747}. Výsledné souřadnice v kartézském systému se vypočítají pomocí \hyperref[eq:concentricHemisphere]{vzorce~\ref{eq:concentricHemisphere}}. Pro výpočet je potřeba převést \(\randU\) a \(\randV\) z intervalu \(\intervalco{0}{1}\) do intervalu \(\intervalco{-1}{1}\)  Rozdělení pravděpodobnosti je definováno \hyperref[eq:concentricHemisphere]{vzorcem~\ref{eq:concentricHemispherePdf}}.
 
 \begin{eqnarray}
   r & = & \left\{\begin{matrix*}[l] \randU & |\randU| > \left | \randV \right |\\ \randV & jinak \end{matrix*}\right. \nonumber \\
@@ -863,15 +876,46 @@ Tento postup je vhodný provádět na obrazových datech, na kterých je sníže
 \end{figure}
 
 \subsection{Multiple importance sampling}
-TODO
+Jednotlivé, samostatné možnosti vzorkování samostatně mají pozitivní vliv na výkon aplikace. Samostatné vzorkování pouze BRDF funkce, nebo pouze světelných zdrojů ale nedává optimální výsledky (viz \hyperref[fig:samplingBRDFOnly]{obrázek~\ref{fig:samplingBRDFOnly}} a \hyperref[fig:samplingLightsOnly]{obrázek~\ref{fig:samplingLightsOnly}}). Ve článku~\cite{Guibas1997RobustMC} je představena metoda Multiple Importance Sampling. Pomocí metody MIS lze spojit libovolný počet vzorkovacích technik. Pro výsledné vzorkování je pak použit výpočet definovaný \hyperref[eq:misEstimator]{vzorcem~\ref{eq:misEstimator}}. Pro výpočet je nutné každé vzorkovací technice přiřadit koeficient \(w\). Tento koeficient nemusí být konstantní, je možné jej dynamicky měnit podle současného vzorku. Pro všechny koeficienty \(w\) pak musí platit podmínky \hyperref[eq:weightCond1]{\ref{eq:weightCond1}} a  \hyperref[eq:weightCond2]{\ref{eq:weightCond2}}.
+
+\begin{equation} \label{eq:misEstimator}
+  F = \sum^{n}_{i=1}\frac{1}{n_i}\sum^{n_i}_{j=1}w_i(X_{i,j})\frac{f(X_{i,j})}{p_i(X_{i,j})}
+\end{equation}
+
+\begin{align}
+  \sum^{n}_{i=1}w_i(x) & = 1 \text{~pro~}f\left( x \right) \neq 0 \label{eq:weightCond1} \\
+  w_i\left( x \right)  & = 0 \text{~pro~}p_i\left( x \right) = 0 \label{eq:weightCond2}
+\end{align}
+
+Pro získání koeficientů \(w\) je ve článku~\cite{Guibas1997RobustMC} navržena dvojice heuristik, která je definovaná \hyperref[eq:balancePowerHeuristic]{vzorcem~\ref{eq:balancePowerHeuristic}}. Jedná se o tzv. \textquote{balance heuristic} a \textquote{power heuristic}. Tato dvojice heuristik patří aktuálně mezi jedny z nejpoužívanějších heuristik.\par
+O balance heuristic --- vyváženou heuristiku se jedná v případě, kdy \(\beta = 1\). Ve článku~\cite{Guibas1997RobustMC} je tvrzení, že žádná jiná heuristika (v té době) neměla výrazně lepší výsledky než právě tato heuristika. V případě, že \(\beta > 1\), jedná se o Power heuristic. Tato heuristika je vhodná pro aplikace s obecně menší variancí. Parametr \(\beta\) je možné nastavit libovolně, experimentálně, ve článku~\cite{Guibas1997RobustMC} je navrženo nastavení \(\beta = 2\). Výsledek použití metody MIS s Balance heuristikou je zobrazen na \hyperref[fig:samplingMIS]{obrázku~\ref{fig:samplingMIS}}
+
+\begin{equation} \label{eq:balancePowerHeuristic}
+  w_i\left( x \right) = \frac{\left[n_ip_i(x)\right]^\beta}{\sum_{k}\left[n_kp_k(x)\right]^\beta}
+\end{equation}
+
+Balance a Power heuristika nabízí robustní kombinaci vzorkování, která i při horší kombinaci vstupů není negativně ovlivněn celkový výstup. Nevýhodou ale je horší efektivita tohoto přístupu. V některých případech může např.\ dojít k situaci, kdy by lepšího výsledku bylo dosaženou použitím pouze jedné vzorkovací techniky. Tento problém a jeho následné řešení byl podrobně popsán v článku~\cite{OptimalMIS}. Výpočet heuristiky je popsán \hyperref[eq:misOptimalWeighs]{vzorcem~\ref{eq:misOptimalWeighs}}. Heuristika pro svůj výpočet používá dodatečný parametr \(\alpha\), který lze získat pomocí řešení \hyperref[eq:misOptimalWeighsAlpha]{lineárního systému~\ref{eq:misOptimalWeighsAlpha}}. Pro výpočet je nutná matice hodnot \(a\) a vektor hodnot \(b\). Tyto hodnoty jsou získány pomocí \hyperref[eq:misOptimalWeighsAB]{rovnic~\ref{eq:misOptimalWeighsAB}}.
+
+\begin{equation} \label{eq:misOptimalWeighs}
+  w_i\left( x \right) = \frac{\alpha_ip_i\left( x \right)}{f\left( x \right)} + \frac{n_ip_i(x)}{\sum^{N}_{k=1}n_kp_k(x)}\left(1-\frac{\sum^{N}_{k=1}\alpha_kp_k\left( x \right)}{f(x)}\right)
+\end{equation}
+
+\begin{equation} \label{eq:misOptimalWeighsAlpha}
+  \begin{pmatrix} a_{11} & \cdots & a_{1N} \\ \vdots & \ddots & \vdots \\ a_{N1} & \cdots & a_{NN} \end{pmatrix} \begin{pmatrix} \alpha_{1} \\ \vdots \\ \alpha_{N} \end{pmatrix} = \begin{pmatrix} b_{1} \\ \vdots \\ b_{N} \end{pmatrix}
+\end{equation}
+
+\begin{align} \label{eq:misOptimalWeighsAB}
+  a_{ij} & = \int\frac{p_ip_j}{\sum^{N}_{k=1}n_kp_k} \\
+  b_{i}  & = \int\frac{p_if}{\sum^{N}_{k=1}n_kp_k}
+\end{align}
 
 \begin{figure}[ht]%
   \centering
-  \subfloat[Vzorkování BRDF]{{\includegraphics[width=6cm]{Figures/brdfsampling.jpg} }}%
+  \subfloat[Vzorkování BRDF\label{fig:samplingBRDFOnly}]{{\includegraphics[width=6cm]{Figures/brdfsampling.jpg} }}%
   \qquad
-  \subfloat[Vzorkování světelných zdrojů]{{\includegraphics[width=6cm]{Figures/lightsampling.jpg}}}%
+  \subfloat[Vzorkování světelných zdrojů\label{fig:samplingLightsOnly}]{{\includegraphics[width=6cm]{Figures/lightsampling.jpg}}}%
   \qquad
-  \subfloat[Multiple importance sampling]{{\includegraphics[width=6cm]{Figures/mis.jpg} }}%
+  \subfloat[Multiple importance sampling\label{fig:samplingMIS}]{{\includegraphics[width=6cm]{Figures/mis.jpg} }}%
   \caption{Srovnání výsledků vzorkování\cite{Guibas1997RobustMC}}%
   \label{fig:samplingComparison}%
 \end{figure}
@@ -879,6 +923,21 @@ TODO
 
 \chapter{Závěr}
 TODO
+Byla vytvořena multiplatformní aplikace v jazyce C++, která umožňuje interaktivně vizualizovat vybrané analyticky zadané BRDF funkce i s výsledným renderem. V aplikaci je také možné vizualizovat vzorkovací funkce a demonstrovat vliv výběru vzorkovacích funkcí na výsledný render. Aplikace je snadno rozšiřitelná o případné další BRDF funkce a vzorkovací funkce. \par
+Ve druhé kapitole diplomové práce byly teoreticky popsány principy osvětlení scény společně s osvětlením pomocí HDR mapy. Byl popsán princip sledování paprsku, zobrazovací rovnice a její řešení s použitím metody Monte Carlo. Také byly v rámci rešerše zpracovány a popsány existující aplikace pro zobrazení a návrh BRDF funkcí, jejich funkce a také jejich případné nedostatky. \par
+Ve třetí kapitole byl teoreticky rozebrán princip BRDF funkce, společně s podmínkami pro fyzikální přesnost. Následně byly popsány vybrané BRDF funkce. Každá BRDF funkce byla popsána analyticky, byly popsány případné parametry a také bylo popsáno, pro které materiály se daná BRDF funkce hodí. Také byla každá BRDF funkce vizualizována pomocí snímku z vytvořené aplikace. Na konci kapitoly byl pak srovnán výkon jednotlivých BRDF funkcí za pomocí naměřených dat. \par
+Čtvrtá kapitola se věnovala popisu vytvořené aplikace. Jednotlivé části aplikace byly popsány a výsledky těchto částí byly zobrazeny. Byl popsán princip zobrazení BRDF funkcí, vybraného vzorkování a také výsledného renderu vzniklého pomocí metody path tracing. Dále byly také popsány důležité pomocné matematické funkce. Nakonec byly popsány použité knihovny.\par
+V poslední kapitole byly rozebrány jednotlivé možnosti optimalizace metody Monte Carlo pro řešení zobrazovací rovnice. Byly teoreticky popsány akcelerační datové struktury a podrobněji bylo rozvedeno použití BVH stromu a Kd-tree. Následně byly teoreticky zpracovány možnosti optimalizace pomocí vzorkování. Bylo popsáno vzorkování samotných BRDF funkcí i vzorkování světelných zdrojů z HDR mapy. Následně bylo popsáno možné spojení těchto dvou vzorkovacích metod pomocí metody Multiple Importance Sampling. \par
+\subsection*{Možná vylepšení aplikace}
+Aplikace jako taková by mohla být dále rozšířena o několik různých funkcí. V aktuálním stavu je aplikace závislá na BRDF funkcích přímo implementovaných v kódu. Bylo by teda možné rozšířit aplikaci o načítání uživatelsky definovaných BRDF funkcí. Zde však vzniká problém, jelikož je potřeba definovat BRDF funkci pro GLSL shader a také pro výpočet pomocí Embree. Bylo by teda potřeba tento výpočet sjednotit. Možným řešením by bylo použití např.\ jazyka Lua pro definici BRDF funkcí a jejich parametrů. Kód by pak musel být zpracován a zkompilován za běhu aplikace pro glsl shader. \par
+Obohacující by také mohla být podpora pro načítání BRDF modelů získaných z reálně naměřených dat. Nabízelo by se tak použití např. dat z databáze MERL. \par
+Další možností by mohla být interaktivní úprava kódu pro BRDF funkci přímo za běhu aplikace. Funkce by mohlo být možné upravovat přímo textově, nebo by mohl být vytvořen systém pro vizuální programování. Takové systémy se stávají populární, lze je nalézt např.\ v Unreal Engine 4, nebo v Blender.\par
+Z hlediska výkonu by aplikace mohla být upravena tak, aby byl volitelný způsob výpočtu finálního renderu. Kromě výpočtu na CPU s použitím knihovny Embree by mohla být přepínatelná podpora pro výpočet na GPU např. pomocí technologie Vulkan, Nvidia OptiX, nebo OpenCL.
+
+
+
+
+
 
 \printbibliography[title={Literatura}, heading=bibintoc]
 
