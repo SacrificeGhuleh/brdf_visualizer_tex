@@ -48,6 +48,16 @@
 % Nechame vysazet titulni strany.
 \MakeTitlePages
 
+% Jsou v praci obrazky? Pokud ano vysazime jejich seznam a odstrankujeme.
+% Pokud ne smazeme nasledujici dve makra.
+\listoffigures
+\clearpage
+
+% Jsou v praci tabulky? Pokud ano vysazime jejich seznam a odstrankujeme.
+% Pokud ne smazeme nasledujici dve makra.
+\listoftables
+\clearpage
+
 % A nasleduje text zaverecne prace.
 \input{Chapters/Introduction.tex}
 \input{Chapters/SampleChapter1.tex}
