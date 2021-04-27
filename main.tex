@@ -100,20 +100,21 @@
 \SubmissionYear{2021}
 
 % Pokud nechceme nikomu dekovat makro zapoznamkujeme.
-% \Acknowledgement{Rád bych na tomto místě poděkoval všem, kteří mi s prací pomohli, protože bez nich by tato práce nevznikla.}
+\Acknowledgement{Rád bych na tomto místě poděkoval vedoucímu práce Ing. Tomášovi Fabiánovi, Ph.D. za pomoc se zpracováním této diplomové práce a jeho věcné připomínky.}
 
-\CzechAbstract{TODO Czech abstract}
+\CzechAbstract{Tato diplomová práce se zabývá popisem aplikace určené k vizualizaci BRDF funkcí. Aplikace je interaktivní, umožňuje vizualizovat vybrané BRDF funkce, měnit parametry a vizualizovat jednoduchou fotorealistickou scénu. Diplomová práce také zpracovává nutnou teorii pro pochopení problematiky fotorealistické počítačové grafiky.}
 
-\CzechKeywords{TODO Klíčová slova}
+\CzechKeywords{BRDF, Fotorealistický rendering, Path tracing, Monte Carlo}
 
-\EnglishAbstract{TODO Eng abstract}
+\EnglishAbstract{This thesis is focused on description of an application intended to visualize BRDF functions. The application is interactive, it allows to visualize selected BRDF functions, change parameters and visualize a simple photorealistic scene. This thesis also elaborates the necessary theory for understanding the issue of photorealistic computer graphics.}
 
-\EnglishKeywords{TODO keywords}
+\EnglishKeywords{BRDF, Photorealistic rendering, Path tracing, Monte Carlo}
 
 \AddAcronym{AABB}{Axis-Aligned Bounding Box}
 \AddAcronym{BRDF}{Bidirectional Reflectance Distribution Function}
 \AddAcronym{BTDF}{Bidirectional Transmittance Distribution Function}
 \AddAcronym{BSDF}{Bidirectional Scattering Distribution Function}
+\AddAcronym{BSSRDF}{Bidirectional Sub-surface Scattering Reflectance Distribution Function}
 \AddAcronym{BVH}{Bounding Volume Hierarchy}
 \AddAcronym{GLSL}{OpenGL Shading Language}
 \AddAcronym{IOR}{Index of Refraction}
@@ -147,12 +148,13 @@
 \clearpage
 % A nasleduje text zaverecne prace.
 
-\chapter{Úvod}
+\chapter*{Úvod}
 \pagenumbering{arabic}
 \setcounter{page}{1} %
-TODO zrekapitulovat zadání, vysvětlit jeho smysl, načrtnou v hrubých obrysech výslednou podobu řešení (co by to mělo umět, aby to řešilo zadaný problém)
-
-
+Jednou z oblastí počítačové grafiky je fotorealistická vizualizace. Aby byla vizualizace fyzikálně přesná a uvěřitelná, je potřeba přesně simulovat osvětlení objektu ve scéně. Jedna z dílčích částí jsou matematické funkce, popisující odraz světla od povrchu -- BRDF funkce. Pro lepší představu chování jednotlivých funkcí je vhodné tyto funkce nějakým způsobem vizualizovat. \par
+Teoretická část této diplomové práce se zabývá teorií nutnou pro pochopení problematiky BRDF funkcí a následným popisem aplikace, která slouží k vizualizaci BRDF funkcí. Aplikace, která je pak implementována v praktické části této práce může být primárně využita ke vzdělávacím účelům -- k demonstraci různých BRDF funkcí, k experimentování s jejich parametry, nebo také k návrhu materiálů dále použitých v aplikacích pro tvorbu fotorealistických vizualizací. \par
+Aplikace umožňuje zobrazení jednotlivých BRDF funkcí. Jednotlivé funkce lze interaktivně ovlivňovat pomocí změny parametrů, náhled výsledného fotorealistického materiálu je zároveň zobrazen. Aplikace má také možnost zobrazit vzorkovací funkce, které jsou pro použití s BRDF funkcemi důležité. \par
+V první kapitole je sjednoceno značení, které je použito ve vzorcích této práce. Druhá kapitola je věnována rešerši, jsou popsány existující aplikace zabývající se vizualizací BRDF funkcí. Popsány jsou jejich funkce, výhody a nedostatky. Na konci druhé kapitoly jsou specifikovány konkrétní požadavky na implementovanou aplikaci. Ve třetí kapitole je čtenář seznámen s teoretickými základy realistického osvětlení v počítačové grafice. Čtvrtá kapitola se věnuje teorii, týkající se BRDF funkcí. Dále jsou ve čtrté kapitole zpracovány některé konkrétní BRDF funkce, které jsou následně implementovány v aplikaci. Pátá kapitola je věnována praktickému popisu implementované aplikace. Rozebrána jsou technická řešení a jednotlivé funkce aplikace. V šesté kapitole jsou teoreticky popsány optimalizační techniky používané ve fotorealistické počítačové grafice.
 
 \clearpage
 \chapter{Užité symboly}
@@ -167,7 +169,7 @@ Z důvodu použití vyššího množství matematických symbolů v této diplom
   \item[\(\irradiance\):] Globální ozáření daného bodu
   \item[\(\difirradiance\):] Diferenciální ozáření daného bodu z daného směru \(\inVec\)
   \item[\(\rt\):] Ray casting funkce
-  \item[\(\brdf\):] 5D BRDF funkce
+  \item[\(\brdf\):] 4D BRDF funkce
   \item[\(\left(\theta,\phi\right)\):] Směrový vektor definovaný sférickými souřadnicemi\footnote{Bez informace o velikosti vektoru, v této práci předpokládám jednotkový vektor}
   \item[\(\left(x,y,z\right)\):] Vektor definovaný kartézskými souřadnicemi
   \item[\(\normVec\):] Vektor normály povrchu
@@ -322,7 +324,7 @@ Fotorealistického osvětlení modelů ve scéně pomocí mapy prostředí je do
 
 \section{Rendering pomocí metody sledování paprsku}
 Při renderingu pomocí klasických metod se postupuje pomocí standardního zobrazovacího řetězce. Postup je ve zkratce následující: Vrcholy tělesa jsou nahrány do GPU, následně se ve fragment shaderu aplikují transformační matice a matice pro převod z lokálního do globálního prostoru. Následně je provedena rasterizace tělesa. Nakonec je ve fragment shaderu vypočítáno osvětlení tělesa. Standardní zobrazovací řetězec má tu výhodu, že je možné renderovat za běhu programu, v reálném čase. Nevýhodou je však ztráta jisté reálnosti výstupu.\par
-Při použití metody sledování paprsku je perspektivní promítání realizováno pomocí sady přímek (paprsků). Paprsky jsou konstruovány takovým způsobem, že procházejí středem promítání. Směry těchto přímek pak korespondují s rozmístěním jednotlivých pixelů generovaného obrazu na pomyslné promítací rovině. Následně se provádí traverzace ve scéně (testování, který objekt ve scéně byl protnut paprskem). Při protnutí tělesa je možné následně počítat další odrazy paprsků a simulovat tak šíření světla ve scéně. Výhodou použití metody sledování paprsků je možnost velmi reálných výsledků. Nevýhodou je ale vysoká výpočetní náročnost. Výpočet komplexních scén pouze pomocí metod sledování paprsků v reálném čase je komplikovaný problém. V současné době je možná hardwarová akcelerace na grafických kartách. Pro urychlení výpočtu\footnote{TODO nějaké asympt. složitosti?} jsou také používány hluboké neuronové sítě (např.\ technologie Nvidia DLSS). Je možné provádět výpočet pro nižší rozlišení a následně provést upscaling (zvýšení rozlišení). Neuronová síť je schopná dopočítat chybějící data. Výsledkem je dle Nvidia obraz svou kvalitou srovnatelný s výpočtem rovnou ve vyšším rozlišení.
+Při použití metody sledování paprsku je perspektivní promítání realizováno pomocí sady přímek (paprsků). Paprsky jsou konstruovány takovým způsobem, že procházejí středem promítání. Směry těchto přímek pak korespondují s rozmístěním jednotlivých pixelů generovaného obrazu na pomyslné promítací rovině. Následně se provádí traverzace ve scéně (testování, který objekt ve scéně byl protnut paprskem). Při protnutí tělesa je možné následně počítat další odrazy paprsků a simulovat tak šíření světla ve scéně. Výhodou použití metody sledování paprsků je možnost velmi reálných výsledků. Nevýhodou je ale vysoká výpočetní náročnost. Výpočet komplexních scén pouze pomocí metod sledování paprsků v reálném čase je komplikovaný problém. V současné době je možná hardwarová akcelerace na grafických kartách. Pro urychlení výpočtu jsou také používány hluboké neuronové sítě (např.\ technologie Nvidia DLSS). Je možné provádět výpočet pro nižší rozlišení a následně provést upscaling (zvýšení rozlišení). Neuronová síť je schopná dopočítat chybějící data. Výsledkem je dle Nvidia obraz svou kvalitou srovnatelný s výpočtem rovnou ve vyšším rozlišení.
 
 \section{Řešení zobrazovací rovnice}
 Zobrazovací rovnice má formu integrálu, který se počítá přes pomyslnou polokouli vytvořenou nad bodem, orientovanou podél normály bodu. Na výslednou hodnotu má vliv nekonečné množství příchozích paprsků ze všech směrů na povrchu polokoule. Zář \(\inRadiance\) dopadající na bod mohlo být odraženo jiným bodem ve scéně. Z toho vyplývá, že výpočet osvětlení je nekonečně rekurzivní. Korektní analytické řešení zobrazovací rovnice z toho důvodu není možné. Z matematického hlediska existuje více způsobů, jak řešit integrály. Metoda Monte Carlo se opírá o princip z teorie pravděpodobnosti a matematické statistiky, že průměr velkého počtu náhodných veličin se přiblíží střední hodnotě. Řešení zobrazovací rovnice pomocí metody Monte Carlo navrhuje Kajiya v~\cite{KajiyaRenderEq}.\par
@@ -417,11 +419,16 @@ Další doplňující podmínky lze definovat pro BRDF funkce, které využívaj
 \end{figure}
 
 \section{Variace BRDF funkcí}
-TODO\\
 Kromě BRDF funkcí jsou v počítačové grafice definovány i další funkce, které se používají pro popis odrazu světla. BTDF funkce (Bidirectional Transmittance Distribution Function) je distribuční funkce lomu světla, která popisuje průchod světla objektem. BTDF funkce je v zásadě funkce \(\btdf\), pro kterou platí, že vektory \(\inVec\) a \(\outVec\) směřují každý do opačné hemisféry bodu \(\point\).\par
-BSDF funkce (Bidirectional scattering distribution function) vzniká v zásadě spojením BRDF a BDTF funkce, popisuje rozptyl světla při kontaktu s objektem.
+BSDF funkce (Bidirectional scattering distribution function) vzniká v zásadě spojením BRDF a BDTF funkce, popisuje rozptyl světla při kontaktu s objektem.\par
+Pokročilejší funkcí je tzv.\ BSSRDF funkce (Bidirectional sub-surface scattering reflectance distribution function). BRDF funkce odráží příchozí světlo vždy ve stejném bodě, BSSRDF funkce modeluje průchod světla a odrazy pod povrchem tělesa. Princip a výpočet BSSRDF funkcí je netriviální, ale použití výsledný funkce má pozitivní dopad na výslednou realističnost scény. Ukázka odrazu světla pomocí BSSRDF funkce je zobrazena na \hyperref[fig:bssrdf]{obrázku~\ref{fig:bssrdf}}.
 
-TODO BSSDF - krátné nastínění
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=6cm]{Figures/BSSRDF.pdf}%
+  \caption{Ukázka principu BSSRDF funkce~\cite{PHARR2017313}}
+  \label{fig:bssrdf}
+\end{figure}
 
 \section{Přehled BRDF funkcí}\label{sec:brdffunctions}
 Následující odstavce se zabývají detailním popisem a vlastnostmi jednotlivých BRDF funkcí. Budou zde vyjmenovány pouze ty BRDF funkce, které byly implementovány v praktické části této diplomové práce. \\
@@ -456,7 +463,8 @@ BRDF podle Beer-Lambertova zákona se řadí mezi analytické modely BRDF\@. Pop
 \(\alb\) ve \hyperref[eq:lambertBRDF]{vztahu~\ref{eq:lambertBRDF}} vyjadřuje poměr mezi pohlceným a odraženým světlem. Tato veličina je také odborně nazývána pojmem albedo. Dělení konstantou \(\pi\) zajišťuje platnost zákona zachování energie. Díky nezávislosti na směru vstupního paprsku je také splněna reciprocita. Ukázka vizualizace je zobrazena na \hyperref[fig:lambertBRDFRender]{obrázku~\ref{fig:lambertBRDFRender}} s parametrem \(\alb = 0{,}8\).
 
 \begin{figure}[ht]%
-  \centering\includegraphics[width=6cm]{Figures/visualizations/brdfLambert.png}%
+  \centering
+  \includegraphics[width=6cm]{Figures/visualizations/brdfLambert.png}%
   \caption{Vizualizace BRDF podle Beer-Lambertova zákona}%
   \label{fig:lambertBRDFRender}%
 \end{figure}
@@ -662,8 +670,15 @@ Ze srovnání BRDF funkcí pro lesklé povrchy v \hyperref[tab:GlossyBRDFsCompar
 \clearpage
 \chapter{Vizualizační aplikace}
 Aplikace jako taková umožňuje zobrazit BRDF funkce popsané v kapitole \hyperref[sec:brdffunctions]{\ref{sec:brdffunctions} Přehled BRDF funkcí}. Důležitým prvkem je také interaktivita, kdy je možné měnit jednotlivé parametry BRDF funkcí. Kromě samotných BRDF funkcí aplikace umožňuje zobrazit i metody pro vzorkování funkcí (toto téma je dále rozebráno v kapitole \hyperref[sec:reduction]{\ref{sec:reduction} Redukce variance Monte Carlo}), kdy je možné přepínat mezi jednotlivými BRDF funkcemi a vzorkovacími funkcemi. Je tedy možné demonstrovat důležitost správného výběru vzorkovací funkce k vybrané BRDF funkci. Pro doplnění funkcionality obsahuje aplikace také možnost pro uložení snímku aktuální vizualizace BRDF ve vysokém rozlišení.\par
-Poslední funkcionalitou je interaktivní okno s jednoduchou scénou, která je renderována s použitím aktuálně vybrané BRDF funkce. Pro jednoduchost je renderován model koule, která je popsána analyticky. Tato testovací scéna je primárně osvětlena HDR obrazem, ale aplikace také umožňuje osvětlit scénu konstantním jasem. Tímto nastavením je simulována situace, kdy na objekt dopadá ze všech směrů stejné množství světla. Takto osvětlená scéna je známa jako tzv.\ furnace test a slouží pro kontrolu fyzikální korektnosti BRDF funkce.\par
+Poslední funkcionalitou je interaktivní okno s jednoduchou scénou, která je renderována s použitím aktuálně vybrané BRDF funkce. Pro jednoduchost je renderován model koule, která je popsána analyticky. Tato testovací scéna je primárně osvětlena HDR obrazem, ale aplikace také umožňuje osvětlit scénu konstantním jasem. Tímto nastavením je simulována situace, kdy na objekt dopadá ze všech směrů stejné množství světla. Takto osvětlená scéna je známa jako tzv.\ furnace test a slouží pro kontrolu fyzikální korektnosti BRDF funkce. Ukázka uživatelského rozhraní aplikace je zobrazena na \hyperref[fig:myapp]{obrázku~\ref{fig:myapp}}.\par
 Následující odstavce se zabývají konkrétními detaily implementace a popisem technických řešení použitých pro jednotlivé funkce implementované vizualizační aplikace.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=15cm]{Figures/visualizations/MyBRDFVizApp.png}
+  \caption{Uživatelské rozhraní vytvořené aplikace}%
+  \label{fig:myapp}%
+\end{figure}
 
 \section{Vizualizace BRDF}
 Při implementaci jsem se chtěl co nejvíce přiblížit standardním referenčním obrázkům popisujícím princip BRDF funkcí (viz \hyperref[fig:brdf2D]{obrázek~\ref{fig:brdf2D}}). Výsledná vizualizace znázorňuje  pro daný vstupní směr všechny možné výstupní směry, do kterých se světlo odráží. Této vizualizace se dá jednoduše dosáhnout tak, že se vygeneruje jednotková hemisféra a jednotlivé body na hemisféře jsou posunuty o hodnotu BRDF funkce pro daný vstupní a výstupní směr. Každý bod na hemisféře zvýrazňuje výstupní směr, vzdálenost bodu od středu (délka vektoru) zvýrazňuje hodnotu BRDF funkce.\par
@@ -675,6 +690,7 @@ Pro vizualizaci jsem se rozhodl vygenerovat jednotkovou polokouli a jednotlivé 
   \caption{Srovnání UV koule a geodetického mnohostěnu~\cite{tan_2019}}
   \label{fig:spheresComparison}
 \end{figure}
+
 Pro zjednodušení implementace jsem vycházel z kódu pro dvacetistěn~\cite{OpenGLSphere}, jehož trojúhelníkové stěny jsem dále rekurzivně dělil. Počet rekurzivních dělení určuje rozlišení výsledné vizualizace, s vyšším počtem dělení se zvyšuje rozlišení.
 Generování hemisféry probíhá v následujících krocích:
 \begin{enumerate}
@@ -705,20 +721,13 @@ Body takto generované hemisféry jsou následně upraveny ve vertex shaderu. Z�
   \label{src:vertexbrdf}
 \end{listing}
 
-Ve vertex shaderu jsou poté ve funkci \texttt{BRDF()} implementovány jednotlivé BRDF funkce. Pro přepínání mezi aktuálně zvolenou BRDF funkcí slouží uniformní proměnná, která je do shaderu předávána z programu. Parametry jednotlivých funkcí jsou také předávány pomocí uniformních proměnných. Po zpracování ve vertex shaderu je následně vizualizace zpracována fragment shaderem, kde je každý bod vizualizace jednoduše obarven podle vzdálenosti bodu od středu (tzn.\ dle hodnoty BRDF funkce daného bodu). Obarvení dané hodnoty BRDF funkce je provedeno za pomocí sekvenční barevné mapy \textit{YLGnBu} (viz \hyperref[fig:ylgnbu]{obrázek~\ref{fig:ylgnbu}}). Ukázka výsledné vizualizace je zobrazena na \hyperref[fig:brdfExample]{obrázku~\ref{fig:brdfExample}}, kde je vizualizována fyzikálně korektní verze BRDF podle Phongova modelu.
+Ve vertex shaderu jsou poté ve funkci \texttt{BRDF} implementovány jednotlivé BRDF funkce. Pro přepínání mezi aktuálně zvolenou BRDF funkcí slouží uniformní proměnná, která je do shaderu předávána z programu. Parametry jednotlivých funkcí jsou také předávány pomocí uniformních proměnných. Po zpracování ve vertex shaderu je následně vizualizace zpracována fragment shaderem, kde je každý bod vizualizace jednoduše obarven podle vzdálenosti bodu od středu (tzn.\ dle hodnoty BRDF funkce daného bodu). Obarvení dané hodnoty BRDF funkce je provedeno za pomocí sekvenční barevné mapy \textit{YLGnBu} (viz \hyperref[fig:ylgnbu]{obrázek~\ref{fig:ylgnbu}}). Ukázka výsledné vizualizace je zobrazena na \hyperref[fig:myapp]{obrázku uživatelského rozhraní aplikace~\ref{fig:myapp}} v hlavním okně, kde je vizualizována fyzikálně korektní verze BRDF podle Phongova modelu.
 
 \begin{figure}[ht]
   \centering
   \includegraphics[width=6cm]{Figures/YlGnBu.png}
   \caption{Barevná škála použitá pro obarvení BRDF funkcí}%
   \label{fig:ylgnbu}%
-\end{figure}
-
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=6cm]{Figures/brdfVizExample.png}
-  \caption{Ukázka vizualizace BRDF}%
-  \label{fig:brdfExample}%
 \end{figure}
 
 \clearpage
@@ -752,9 +761,9 @@ Kromě analyticky zadané koule je také možné vizualizovat render libovolnéh
 
 \begin{figure}[ht]%
   \centering
-  \subfloat[Render načteného objektu \label{fig:loadedObjectRender}]{{\includegraphics[width=6cm]{example-image-a} }}%
+  \subfloat[Render načteného objektu \label{fig:loadedObjectRender}]{{\includegraphics[width=6cm]{Figures/visualizations/teapot.png} }}%
   \qquad
-  \subfloat[Render analyticky zadané koule \label{fig:analSphereObjectRender}]{{\includegraphics[width=6cm]{example-image-b} }}%
+  \subfloat[Render analyticky zadané koule \label{fig:analSphereObjectRender}]{{\includegraphics[width=6cm]{Figures/visualizations/sphere.png} }}%
   \caption{Ukázka vizualizace výsledku path tracingu}%
   \label{fig:finalrender}%
 \end{figure}
@@ -880,11 +889,10 @@ Struktury dělící objekty shlukují objekty umístěné ve scéně u sebe. Typ
 Struktury dělící prostor rozdělují prostor na menší části, které obsahují tělesa. Typickým příkladem této kategorie je např.\ kdTree.
 
 \subsection{Naivní uložení objektů v poli}
-Jednoduché uložení objektů v poli je nejjednodušší způsob pro řešení tohoto problému. Následná traverzace paprsku scénou se při profilingu ukáže jako jedna z nejnáročnějších částí aplikace, co se výpočetního času týče. Tento problém narůstá s počtem objektů ve scéně, jelikož je vždy nutné pro každý paprsek ve scéně vzít v úvahu každý objekt v poli. Tento způsob je vhodný pouze pro malé scény s nízkým počtem objektů, případně pro prvotní rychlé a jednoduché dosažní výsledků.
+Jednoduché uložení objektů v poli je nejjednodušší způsob pro řešení tohoto problému. Následná traverzace paprsku scénou se při profilingu ukáže jako jedna z nejnáročnějších částí aplikace, co se výpočetního času týče. Tento problém narůstá s počtem objektů ve scéně, jelikož je vždy nutné pro každý paprsek ve scéně vzít v úvahu každý objekt v poli, z toho vyplývá výpočetní složitost \(\mathcal{O}(n)\), kde \(n\) je počet polygonů ve scéně. Uvádí se, že až \(95\%\) výpočetního času programu zabere samotná traverzace \cite{Meister2018}. Výpočetní složitost Tento způsob je vhodný pouze pro malé scény s nízkým počtem objektů, případně pro prvotní rychlé a jednoduché dosažní výsledků.
 
 \subsection{Bounding Volume Hierarchy}
-TODO složitosti\par
-BVH (Bounding Volume Hierarchy) je způsob rozdělení těles hierarchicky, do stromové struktury. Pro reprezentaci se nejčastěji používá binární strom. Uzly ve stromu reprezentují obalovou strukturu definující objem, ve kterém jsou uloženy další uzly.\par
+BVH (Bounding Volume Hierarchy) je způsob rozdělení těles hierarchicky, do stromové struktury. Stromová struktura je použita pro optimalizaci traverzace, výpočetní složitost \(\mathcal{O}(\log n)\) vycházející z průchodu stromem není garantována, ale je možné se k ní přiblížit\cite{Meister2018}.\par Pro reprezentaci se nejčastěji používá binární strom. Uzly ve stromu reprezentují obalovou strukturu definující objem, ve kterém jsou uloženy další uzly.\par
 Listy stromu reprezentují přímo tělesa, každé těleso může být ve stromu právě jednou. Těleso listu může být jak jednotlivý objekt ve scéně, tak případně jednotlivý, samostatný polygon objektu. Ukázka reprezentace objektů v BVH stromu je zobrazena na \hyperref[fig:bvh]{obrázku~\ref{fig:bvh}}
 
 \begin{figure}[ht]%
@@ -1022,26 +1030,18 @@ Balance a Power heuristika nabízí robustní kombinaci vzorkování, která i p
 
 
 \chapter{Závěr}
-
-TODO Přehodil jsem kapitoly, tak to ještě musím přeházet i v závěru
-
-
 Byla vytvořena multiplatformní aplikace v jazyce C++, která umožňuje interaktivně vizualizovat vybrané analyticky zadané BRDF funkce i s výsledným renderem. V aplikaci je také možné vizualizovat vzorkovací funkce a demonstrovat vliv výběru vzorkovacích funkcí na výsledný render. Aplikace je snadno rozšiřitelná o případné další BRDF funkce a vzorkovací funkce.\par
-Ve druhé kapitole diplomové práce byly teoreticky popsány principy osvětlení scény společně s osvětlením pomocí HDR mapy. Byl popsán princip sledování paprsku, zobrazovací rovnice a její řešení s použitím metody Monte Carlo. Také byly v rámci rešerše zpracovány a popsány existující aplikace pro zobrazení a návrh BRDF funkcí, jejich funkce a také jejich případné nedostatky.\par
-Ve třetí kapitole byl teoreticky rozebrán princip BRDF funkce, společně s podmínkami pro fyzikální přesnost. Následně byly popsány vybrané BRDF funkce. Každá BRDF funkce byla popsána analyticky, byly popsány případné parametry a také bylo popsáno, pro které materiály se daná BRDF funkce hodí. Také byla každá BRDF funkce vizualizována pomocí snímku z vytvořené aplikace. Na konci kapitoly byl pak srovnán výkon jednotlivých BRDF funkcí za pomocí naměřených dat.\par
-Čtvrtá kapitola se věnovala popisu vytvořené aplikace. Jednotlivé části aplikace byly popsány a výsledky těchto částí byly zobrazeny. Byl popsán princip zobrazení BRDF funkcí, vybraného vzorkování a také výsledku path tracingu vzniklého pomocí metody path tracing. Dále byly také popsány důležité pomocné matematické funkce. Nakonec byly popsány použité knihovny.\par
+V první kapitole bylo sjednoceno značení veličin a parametrů BRDF funkcí, které byly používány ve vzorcích. U některých veličin byl také upřesněn výpočet, který je možné použít pro získání jejich hodnoty. U parametrů BRDF funkcí bylo také zmíněno, který parametr je pro kterou BRDF funkci relevantní. \par
+Ve druhé kapitole diplomové práce byly zpracovány existující aplikace, sloužící k vizualizaci a návrhu BRDF funkcí. Popsány byla funkcionalita jednotlivých aplikací, byly zmíněny zajímavé vlastnosti a nedostatky. Na konci druhé kapitoly byly popsány požadavky na implementaci aplikace, vycházející z vlastností existujících aplikací a řešící některé z nedostatků.\par
+Ve třetí kapitole diplomové práce byly teoreticky popsány principy osvětlení scény společně s osvětlením pomocí HDR mapy. Byl popsán princip sledování paprsku, zobrazovací rovnice a její řešení s použitím metody Monte Carlo.\par
+Ve čtvrté kapitole byl teoreticky rozebrán princip BRDF funkce, společně s podmínkami pro fyzikální přesnost. Následně byly popsány vybrané BRDF funkce. Každá BRDF funkce byla popsána analyticky, byly popsány případné parametry a také bylo popsáno, pro které materiály se daná BRDF funkce hodí. Také byla každá BRDF funkce vizualizována pomocí snímku z vytvořené aplikace. Na konci kapitoly byl pak srovnán výkon jednotlivých BRDF funkcí za pomocí naměřených dat.\par
+Pátá kapitola se věnovala popisu vytvořené aplikace. Jednotlivé části aplikace byly popsány a výsledky těchto částí byly zobrazeny. Byl popsán princip zobrazení BRDF funkcí, vybraného vzorkování a také výsledku path tracingu vzniklého pomocí metody path tracing. Dále byly také popsány důležité pomocné matematické funkce. Nakonec byly popsány použité knihovny.\par
 V poslední kapitole byly rozebrány jednotlivé možnosti optimalizace metody Monte Carlo pro řešení zobrazovací rovnice. Byly teoreticky popsány akcelerační datové struktury a podrobněji bylo rozvedeno použití BVH stromu a Kd-tree. Následně byly teoreticky zpracovány možnosti optimalizace pomocí vzorkování. Bylo popsáno vzorkování samotných BRDF funkcí i vzorkování světelných zdrojů z HDR mapy. Následně bylo popsáno možné spojení těchto dvou vzorkovacích metod pomocí metody Multiple Importance Sampling.\par
 \subsection*{Možná vylepšení aplikace}
 Aplikace jako taková by mohla být dále rozšířena o několik různých funkcí. V aktuálním stavu je aplikace závislá na BRDF funkcích přímo implementovaných v kódu. Bylo by teda možné rozšířit aplikaci o načítání uživatelsky definovaných BRDF funkcí. Zde však vzniká problém, jelikož je potřeba definovat BRDF funkci pro GLSL shader a také pro výpočet pomocí Embree. Bylo by teda potřeba tento výpočet sjednotit. Možným řešením by bylo použití např.\ jazyka Lua pro definici BRDF funkcí a jejich parametrů. Kód by pak musel být zpracován a zkompilován za běhu aplikace pro glsl shader.\par
 Obohacující by také mohla být podpora pro načítání BRDF modelů získaných z reálně naměřených dat. Nabízelo by se tak použití např.\ dat z databáze MERL.\par
 Další možností by mohla být interaktivní úprava kódu pro BRDF funkci přímo za běhu aplikace. Funkce by mohlo být možné upravovat přímo textově, nebo by mohl být vytvořen systém pro vizuální programování. Takové systémy se stávají populární, lze je nalézt např.\ v Unreal Engine 4, nebo v Blender.\par
 Z hlediska výkonu by aplikace mohla být upravena tak, aby byl volitelný způsob výpočtu finálního renderu. Kromě výpočtu na CPU s použitím knihovny Embree by mohla být přepínatelná podpora pro výpočet na GPU např.\ pomocí technologie Vulkan, Nvidia OptiX, nebo OpenCL.
-
-
-
-TODO
-
-
 
 \printbibliography[title={Literatura}, heading=bibintoc]
 
