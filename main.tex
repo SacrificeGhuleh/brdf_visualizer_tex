@@ -702,13 +702,13 @@ Body takto generované hemisféry jsou následně upraveny ve vertex shaderu. Z�
   \label{src:vertexbrdf}
 \end{listing}
 
-Ve vertex shaderu jsou poté ve funkci \texttt{BRDF} implementovány jednotlivé BRDF funkce. Pro přepínání mezi aktuálně zvolenou BRDF funkcí slouží uniformní proměnná, která je do shaderu předávána z programu. Parametry jednotlivých funkcí jsou také předávány pomocí uniformních proměnných. Po zpracování ve vertex shaderu je následně vizualizace zpracována fragment shaderem, kde je každý bod vizualizace jednoduše obarven podle vzdálenosti bodu od středu (tzn.\ dle hodnoty BRDF funkce daného bodu). Obarvení dané hodnoty BRDF funkce je provedeno za pomocí sekvenční barevné mapy \textit{YLGnBu} (viz \hyperref[fig:ylgnbu]{obrázek~\ref{fig:ylgnbu}}). Ukázka výsledné vizualizace je zobrazena na \hyperref[fig:myapp]{obrázku uživatelského rozhraní aplikace~\ref{fig:myapp}} v hlavním okně, kde je vizualizována fyzikálně korektní verze BRDF podle Phongova modelu.
+Ve vertex shaderu jsou poté ve funkci \texttt{BRDF} implementovány jednotlivé BRDF funkce. Pro přepínání mezi aktuálně zvolenou BRDF funkcí slouží uniformní proměnná, která je do shaderu předávána z programu. Parametry jednotlivých funkcí jsou také předávány pomocí uniformních proměnných. Po zpracování ve vertex shaderu je následně vizualizace zpracována fragment shaderem, kde je každý bod vizualizace jednoduše obarven podle vzdálenosti bodu od středu (tzn.\ dle hodnoty BRDF funkce daného bodu). Obarvení dané hodnoty BRDF funkce je provedeno za pomocí sekvenční barevné mapy \textquote{Autumn} (viz \hyperref[fig:colormap]{obrázek~\ref{fig:colormap}}). Ukázka výsledné vizualizace je zobrazena na \hyperref[fig:myapp]{obrázku uživatelského rozhraní aplikace~\ref{fig:myapp}} v hlavním okně, kde je vizualizována fyzikálně korektní verze BRDF podle Phongova modelu.
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=6cm]{Figures/YlGnBu.png}
+  \includegraphics[width=8cm]{Figures/MATLAB_autumn.png}
   \caption{Barevná škála použitá pro obarvení BRDF funkcí}%
-  \label{fig:ylgnbu}%
+  \label{fig:colormap}%
 \end{figure}
 
 \clearpage
